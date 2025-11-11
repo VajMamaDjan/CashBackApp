@@ -17,16 +17,15 @@
         android:textColor="#333333"
         android:elevation="4dp" />
 
-    <GridView
+    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/gridViewCategories"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:numColumns="4"
-        android:verticalSpacing="16dp"
-        android:horizontalSpacing="16dp"
-        android:padding="16dp"
-        android:stretchMode="spacingWidthUniform"
-        android:gravity="center"
-        android:columnWidth="80dp"/>
+        android:verticalSpacing="12dp"
+        android:horizontalSpacing="8dp"
+        android:stretchMode="columnWidth"
+        android:padding="12dp"
+        android:gravity="center" />
 
 </LinearLayout>

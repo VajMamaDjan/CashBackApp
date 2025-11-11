@@ -10,15 +10,12 @@ import android.widget.TextView;
 import java.util.List;
 
 public class CategoryAdapter extends BaseAdapter {
-
     private Context context;
     private List<Category> categoryList;
-    private LayoutInflater inflater;
 
     public CategoryAdapter(Context context, List<Category> categoryList) {
         this.context = context;
         this.categoryList = categoryList;
-        this.inflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -38,31 +35,19 @@ public class CategoryAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.item_category, parent, false);
-            holder = new ViewHolder();
-            holder.icon = convertView.findViewById(R.id.categoryIcon);
-            holder.name = convertView.findViewById(R.id.categoryName);
-            holder.cashback = convertView.findViewById(R.id.categoryCashback);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
+            convertView = LayoutInflater.from(context)
+                    .inflate(R.layout.item_category, parent, false);
         }
 
         Category category = categoryList.get(position);
 
-        holder.icon.setImageResource(category.getIconResId());
-        holder.name.setText(category.getName());
-        holder.cashback.setText(category.getCashback() + "%");
+        ImageView imageView = convertView.findViewById(R.id.imageViewCategory);
+        TextView textView = convertView.findViewById(R.id.textViewCategoryName);
+
+        imageView.setImageResource(category.getIconResId());
+        textView.setText(category.getName());
 
         return convertView;
-    }
-
-    private static class ViewHolder {
-        ImageView icon;
-        TextView name;
-        TextView cashback;
     }
 }
