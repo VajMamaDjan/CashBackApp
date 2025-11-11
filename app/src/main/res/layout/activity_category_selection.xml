@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#f5f5f5">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Выберите категорию"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        android:textColor="#333333"
+        android:elevation="4dp" />
+
+    <GridView
+        android:id="@+id/gridViewCategories"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="4"
+        android:verticalSpacing="16dp"
+        android:horizontalSpacing="16dp"
+        android:padding="16dp"
+        android:stretchMode="spacingWidthUniform"
+        android:gravity="center"
+        android:columnWidth="80dp"/>
+
+</LinearLayout>
