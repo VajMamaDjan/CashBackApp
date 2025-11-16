@@ -1,12 +1,15 @@
 package com.example.cashbackapp;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class OnboardingActivity extends AppCompatActivity {
@@ -15,6 +18,11 @@ public class OnboardingActivity extends AppCompatActivity {
     private OnboardingAdapter adapter;
     private Button buttonStart;
     private LinearLayout rootLayout;
+    private LinearLayout dotsContainer;
+
+    // Цвета для точек
+    private final int DOT_ACTIVE_COLOR = 0xFF2196F3;   // Синий
+    private final int DOT_INACTIVE_COLOR = 0xFFE0E0E0; // Светло-серый
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +33,14 @@ public class OnboardingActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         buttonStart = findViewById(R.id.buttonStart);
         rootLayout = findViewById(R.id.rootLayout);
+        dotsContainer = findViewById(R.id.dotsContainer);
 
         // Настройка адаптера
         adapter = new OnboardingAdapter();
         viewPager.setAdapter(adapter);
+
+        // Создаем индикаторы точек
+        createDotsIndicator();
 
         // Скрыть кнопку на первых двух экранах
         buttonStart.setVisibility(View.GONE);
@@ -38,6 +50,9 @@ public class OnboardingActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+
+                // Обновляем индикаторы точек
+                updateDotsIndicator(position);
 
                 // Показываем кнопку только на последнем экране
                 if (position == 2) {
@@ -63,6 +78,62 @@ public class OnboardingActivity extends AppCompatActivity {
         setupTouchListener();
     }
 
+    // Создаем индикаторы точек
+    private void createDotsIndicator() {
+        dotsContainer.removeAllViews(); // Очищаем контейнер
+
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            // Создаем View для точки
+            View dot = new View(this);
+
+            // Создаем круглую форму
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setShape(GradientDrawable.OVAL);
+            drawable.setSize(dpToPx(8), dpToPx(8)); // Размер 8dp
+            drawable.setColor(DOT_INACTIVE_COLOR); // Начальный цвет - неактивный
+
+            // Устанавливаем фон
+            dot.setBackground(drawable);
+
+            // Параметры layout
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    dpToPx(8),
+                    dpToPx(8)
+            );
+            params.setMargins(dpToPx(4), 0, dpToPx(4), 0); // Отступы 4dp слева и справа
+
+            dot.setLayoutParams(params);
+
+            // Добавляем точку в контейнер
+            dotsContainer.addView(dot);
+        }
+
+        // Устанавливаем первую точку как активную
+        updateDotsIndicator(0);
+    }
+
+    // Обновляем индикаторы точек
+    private void updateDotsIndicator(int position) {
+        for (int i = 0; i < dotsContainer.getChildCount(); i++) {
+            View dot = dotsContainer.getChildAt(i);
+            GradientDrawable drawable = (GradientDrawable) dot.getBackground();
+
+            if (i == position) {
+                // Активная точка
+                drawable.setColor(DOT_ACTIVE_COLOR);
+            } else {
+                // Неактивная точка
+                drawable.setColor(DOT_INACTIVE_COLOR);
+            }
+        }
+    }
+
+    // Конвертируем dp в пиксели
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
+    }
+
     private void setupTouchListener() {
         rootLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -71,6 +142,11 @@ public class OnboardingActivity extends AppCompatActivity {
                 if (buttonStart.getVisibility() == View.VISIBLE &&
                         isPointInsideView(event.getRawX(), event.getRawY(), buttonStart)) {
                     return false; // Позволяем кнопке обработать нажатие
+                }
+
+                // Проверяем, что касание НЕ на индикаторах точек
+                if (isPointInsideView(event.getRawX(), event.getRawY(), dotsContainer)) {
+                    return false; // Позволяем индикаторам оставаться не кликабельными
                 }
 
                 // Обрабатываем только событие поднятия пальца (тап)
@@ -126,6 +202,11 @@ public class OnboardingActivity extends AppCompatActivity {
         // Если кнопка видна и касание в области кнопки - пропускаем событие
         if (buttonStart.getVisibility() == View.VISIBLE &&
                 isPointInsideView(ev.getRawX(), ev.getRawY(), buttonStart)) {
+            return super.dispatchTouchEvent(ev);
+        }
+
+        // Если касание в области индикаторов - пропускаем событие
+        if (isPointInsideView(ev.getRawX(), ev.getRawY(), dotsContainer)) {
             return super.dispatchTouchEvent(ev);
         }
 

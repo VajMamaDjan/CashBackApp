@@ -14,9 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Заголовок"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:gravity="center"
+        android:includeFontPadding="false"
         android:textColor="#333333"
         android:layout_marginBottom="24dp" />
 
@@ -26,8 +27,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Описание"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:gravity="center"
+        android:includeFontPadding="false"
         android:textColor="#666666"
         android:lineSpacingExtra="4dp" />
 
