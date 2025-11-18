@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Заголовок"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
         android:includeFontPadding="false"
@@ -27,10 +27,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Описание"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:gravity="center"
         android:includeFontPadding="false"
         android:textColor="#666666"
-        android:lineSpacingExtra="4dp" />
+        android:lineSpacingExtra="3dp" />
 
 </LinearLayout>

@@ -5,11 +5,9 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class OnboardingActivity extends AppCompatActivity {
@@ -19,6 +17,10 @@ public class OnboardingActivity extends AppCompatActivity {
     private Button buttonStart;
     private LinearLayout rootLayout;
     private LinearLayout dotsContainer;
+
+    // Переменные для обработки касаний
+    private float startX = 0;
+    private boolean isProcessingTouch = false;
 
     // Цвета для точек
     private final int DOT_ACTIVE_COLOR = 0xFF2196F3;   // Синий
@@ -74,8 +76,8 @@ public class OnboardingActivity extends AppCompatActivity {
             }
         });
 
-        // Обработчик касаний ТОЛЬКО для rootLayout (не для кнопки)
-        setupTouchListener();
+        // Обработчик касаний с улучшенной логикой
+        setupImprovedTouchListener();
     }
 
     // Создаем индикаторы точек
@@ -128,13 +130,8 @@ public class OnboardingActivity extends AppCompatActivity {
         }
     }
 
-    // Конвертируем dp в пиксели
-    private int dpToPx(int dp) {
-        float density = getResources().getDisplayMetrics().density;
-        return Math.round(dp * density);
-    }
-
-    private void setupTouchListener() {
+    // Улучшенный обработчик касаний
+    private void setupImprovedTouchListener() {
         rootLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -149,14 +146,76 @@ public class OnboardingActivity extends AppCompatActivity {
                     return false; // Позволяем индикаторам оставаться не кликабельными
                 }
 
-                // Обрабатываем только событие поднятия пальца (тап)
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    handleTap(event.getX());
-                    return true;
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Запоминаем начальную позицию касания
+                        startX = event.getX();
+                        isProcessingTouch = false;
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        // Обрабатываем только если еще не обработали это касание
+                        if (!isProcessingTouch) {
+                            float endX = event.getX();
+                            handleSwipe(startX, endX);
+                            isProcessingTouch = true;
+                        }
+                        return true;
                 }
                 return false;
             }
         });
+    }
+
+    // Обработчик свайпа с улучшенной логикой
+    private void handleSwipe(float startX, float endX) {
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int currentItem = viewPager.getCurrentItem();
+
+        // Определяем зоны экрана более точно
+        float leftZone = screenWidth * 0.3f;    // Левая 30% экрана
+        float rightZone = screenWidth * 0.7f;   // Правая 30% экрана
+
+        // Минимальная дистанция для срабатывания (чтобы избежать случайных касаний)
+        float minSwipeDistance = screenWidth * 0.1f; // 10% ширины экрана
+        float swipeDistance = Math.abs(endX - startX);
+
+        // Если дистанция слишком маленькая - игнорируем
+        if (swipeDistance < minSwipeDistance) {
+            return;
+        }
+
+        if (startX < leftZone && endX < startX) {
+            // Свайп из левой части влево - предыдущая страница
+            if (currentItem > 0) {
+                viewPager.setCurrentItem(currentItem - 1, true);
+            }
+        } else if (startX > rightZone && endX > startX) {
+            // Свайп из правой части вправо - следующая страница
+            if (currentItem < adapter.getItemCount() - 1) {
+                viewPager.setCurrentItem(currentItem + 1, true);
+            }
+        } else {
+            // Простое определение по конечной позиции
+            float tapX = endX;
+            if (tapX < screenWidth / 2) {
+                // Левая часть экрана - предыдущая страница
+                if (currentItem > 0) {
+                    viewPager.setCurrentItem(currentItem - 1, true);
+                }
+            } else {
+                // Правая часть экрана - следующая страница
+                if (currentItem < adapter.getItemCount() - 1) {
+                    viewPager.setCurrentItem(currentItem + 1, true);
+                }
+            }
+        }
+    }
+
+    // Конвертируем dp в пиксели
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
     }
 
     // Проверяем, находится ли точка внутри View
@@ -179,23 +238,6 @@ public class OnboardingActivity extends AppCompatActivity {
                 rawY >= viewY && rawY <= (viewY + viewHeight));
     }
 
-    private void handleTap(float x) {
-        int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int currentItem = viewPager.getCurrentItem();
-
-        if (x < screenWidth / 2) {
-            // Левая часть экрана - предыдущая страница
-            if (currentItem > 0) {
-                viewPager.setCurrentItem(currentItem - 1, true);
-            }
-        } else {
-            // Правая часть экрана - следующая страница
-            if (currentItem < adapter.getItemCount() - 1) {
-                viewPager.setCurrentItem(currentItem + 1, true);
-            }
-        }
-    }
-
     // Обрабатываем касания на всем активити
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -208,11 +250,6 @@ public class OnboardingActivity extends AppCompatActivity {
         // Если касание в области индикаторов - пропускаем событие
         if (isPointInsideView(ev.getRawX(), ev.getRawY(), dotsContainer)) {
             return super.dispatchTouchEvent(ev);
-        }
-
-        // Для остальных случаев обрабатываем жесты
-        if (ev.getAction() == MotionEvent.ACTION_UP) {
-            handleTap(ev.getX());
         }
 
         return super.dispatchTouchEvent(ev);
