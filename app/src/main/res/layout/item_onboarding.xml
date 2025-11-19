@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- android:padding горизонтальные отступы -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="24dp"
+    android:padding="16dp"
     android:clickable="true"
     android:focusable="true">
 
@@ -14,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Заголовок"
-        android:textSize="20sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:gravity="center"
         android:includeFontPadding="false"
@@ -27,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Описание"
-        android:textSize="14sp"
+        android:textSize="15sp"
         android:gravity="center"
         android:includeFontPadding="false"
         android:textColor="#666666"
