@@ -1,6 +1,7 @@
 package com.example.cashbackapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -15,16 +16,13 @@ public class OnboardingActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private OnboardingAdapter adapter;
     private Button buttonStart;
-    private LinearLayout rootLayout;
     private LinearLayout dotsContainer;
 
-    // Переменные для обработки касаний
     private float startX = 0;
     private boolean isProcessingTouch = false;
 
-    // Цвета для точек
-    private final int DOT_ACTIVE_COLOR = 0xFF2196F3;   // Синий
-    private final int DOT_INACTIVE_COLOR = 0xFFE0E0E0; // Светло-серый
+    private final int DOT_ACTIVE_COLOR = 0xFF2196F3;
+    private final int DOT_INACTIVE_COLOR = 0xFFE0E0E0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,127 +32,117 @@ public class OnboardingActivity extends AppCompatActivity {
         // Инициализация всех View
         viewPager = findViewById(R.id.viewPager);
         buttonStart = findViewById(R.id.buttonStart);
-        rootLayout = findViewById(R.id.rootLayout);
         dotsContainer = findViewById(R.id.dotsContainer);
 
         // Настройка адаптера
         adapter = new OnboardingAdapter();
         viewPager.setAdapter(adapter);
 
-        // Создаем индикаторы точек
+        // 1. Создаем индикаторы точек ПЕРВЫМ ДЕЛОМ
         createDotsIndicator();
 
-        // Скрыть кнопку на первых двух экранах
-        buttonStart.setVisibility(View.GONE);
+        // 2. Проверяем, нужно ли открыть конкретный экран
+        int screenPosition = getIntent().getIntExtra("screen_position", -1);
+        if (screenPosition != -1 && screenPosition < adapter.getItemCount()) {
+            // Переходим на указанный экран (2 = третий экран)
+            viewPager.setCurrentItem(screenPosition, false);
+            // Обновляем состояние кнопки и точек
+            updateButtonVisibility(screenPosition);
+            updateDotsIndicator(screenPosition);
+        }
 
-        // Обработчик перелистывания страниц
+        // 3. Настраиваем обработчики
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-
-                // Обновляем индикаторы точек
                 updateDotsIndicator(position);
-
-                // Показываем кнопку только на последнем экране
-                if (position == 2) {
-                    buttonStart.setVisibility(View.VISIBLE);
-                } else {
-                    buttonStart.setVisibility(View.GONE);
-                }
+                updateButtonVisibility(position);
             }
         });
 
-        // Обработчик нажатия на кнопку "Начать"
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Создаем интент для перехода к CategorySelectionActivity
-                Intent intent = new Intent(OnboardingActivity.this, CategorySelectionActivity.class);
-                startActivity(intent);
-                finish(); // Закрываем onboarding после перехода
+                SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                boolean isRegistered = prefs.getBoolean("user_registered", false);
+
+                if (isRegistered) {
+                    startActivity(new Intent(OnboardingActivity.this, CategorySelectionActivity.class));
+                } else {
+                    startActivity(new Intent(OnboardingActivity.this, SimpleRegistrationActivity.class));
+                }
+                finish();
             }
         });
 
-        // Обработчик касаний с улучшенной логикой
         setupImprovedTouchListener();
     }
 
-    // Создаем индикаторы точек
+    private void updateButtonVisibility(int position) {
+        if (position == 2) {
+            buttonStart.setVisibility(View.VISIBLE);
+        } else {
+            buttonStart.setVisibility(View.GONE);
+        }
+    }
+
     private void createDotsIndicator() {
-        dotsContainer.removeAllViews(); // Очищаем контейнер
+        dotsContainer.removeAllViews();
 
         for (int i = 0; i < adapter.getItemCount(); i++) {
-            // Создаем View для точки
             View dot = new View(this);
 
-            // Создаем круглую форму
             GradientDrawable drawable = new GradientDrawable();
             drawable.setShape(GradientDrawable.OVAL);
-            drawable.setSize(dpToPx(8), dpToPx(8)); // Размер 8dp
-            drawable.setColor(DOT_INACTIVE_COLOR); // Начальный цвет - неактивный
+            drawable.setSize(dpToPx(8), dpToPx(8));
 
-            // Устанавливаем фон
+            // Устанавливаем начальный цвет
+            drawable.setColor(DOT_INACTIVE_COLOR);
+
             dot.setBackground(drawable);
 
-            // Параметры layout
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     dpToPx(8),
                     dpToPx(8)
             );
-            params.setMargins(dpToPx(4), 0, dpToPx(4), 0); // Отступы 4dp слева и справа
+            params.setMargins(dpToPx(4), 0, dpToPx(4), 0);
 
             dot.setLayoutParams(params);
-
-            // Добавляем точку в контейнер
             dotsContainer.addView(dot);
         }
-
-        // Устанавливаем первую точку как активную
-        updateDotsIndicator(0);
     }
 
-    // Обновляем индикаторы точек
     private void updateDotsIndicator(int position) {
         for (int i = 0; i < dotsContainer.getChildCount(); i++) {
             View dot = dotsContainer.getChildAt(i);
             GradientDrawable drawable = (GradientDrawable) dot.getBackground();
-
-            if (i == position) {
-                // Активная точка
-                drawable.setColor(DOT_ACTIVE_COLOR);
-            } else {
-                // Неактивная точка
-                drawable.setColor(DOT_INACTIVE_COLOR);
-            }
+            drawable.setColor(i == position ? DOT_ACTIVE_COLOR : DOT_INACTIVE_COLOR);
         }
     }
 
-    // Улучшенный обработчик касаний
+    // ... остальные методы без изменений
     private void setupImprovedTouchListener() {
-        rootLayout.setOnTouchListener(new View.OnTouchListener() {
+        View rootView = findViewById(android.R.id.content);
+        rootView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                // Проверяем, что касание НЕ на кнопке "Начать"
                 if (buttonStart.getVisibility() == View.VISIBLE &&
                         isPointInsideView(event.getRawX(), event.getRawY(), buttonStart)) {
-                    return false; // Позволяем кнопке обработать нажатие
+                    return false;
                 }
 
-                // Проверяем, что касание НЕ на индикаторах точек
                 if (isPointInsideView(event.getRawX(), event.getRawY(), dotsContainer)) {
-                    return false; // Позволяем индикаторам оставаться не кликабельными
+                    return false;
                 }
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        // Запоминаем начальную позицию касания
                         startX = event.getX();
                         isProcessingTouch = false;
                         return true;
 
                     case MotionEvent.ACTION_UP:
-                        // Обрабатываем только если еще не обработали это касание
                         if (!isProcessingTouch) {
                             float endX = event.getX();
                             handleSwipe(startX, endX);
@@ -167,44 +155,34 @@ public class OnboardingActivity extends AppCompatActivity {
         });
     }
 
-    // Обработчик свайпа с улучшенной логикой
     private void handleSwipe(float startX, float endX) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int currentItem = viewPager.getCurrentItem();
 
-        // Определяем зоны экрана более точно
-        float leftZone = screenWidth * 0.3f;    // Левая 30% экрана
-        float rightZone = screenWidth * 0.7f;   // Правая 30% экрана
-
-        // Минимальная дистанция для срабатывания (чтобы избежать случайных касаний)
-        float minSwipeDistance = screenWidth * 0.1f; // 10% ширины экрана
+        float leftZone = screenWidth * 0.3f;
+        float rightZone = screenWidth * 0.7f;
+        float minSwipeDistance = screenWidth * 0.1f;
         float swipeDistance = Math.abs(endX - startX);
 
-        // Если дистанция слишком маленькая - игнорируем
         if (swipeDistance < minSwipeDistance) {
             return;
         }
 
         if (startX < leftZone && endX < startX) {
-            // Свайп из левой части влево - предыдущая страница
             if (currentItem > 0) {
                 viewPager.setCurrentItem(currentItem - 1, true);
             }
         } else if (startX > rightZone && endX > startX) {
-            // Свайп из правой части вправо - следующая страница
             if (currentItem < adapter.getItemCount() - 1) {
                 viewPager.setCurrentItem(currentItem + 1, true);
             }
         } else {
-            // Простое определение по конечной позиции
             float tapX = endX;
             if (tapX < screenWidth / 2) {
-                // Левая часть экрана - предыдущая страница
                 if (currentItem > 0) {
                     viewPager.setCurrentItem(currentItem - 1, true);
                 }
             } else {
-                // Правая часть экрана - следующая страница
                 if (currentItem < adapter.getItemCount() - 1) {
                     viewPager.setCurrentItem(currentItem + 1, true);
                 }
@@ -212,19 +190,15 @@ public class OnboardingActivity extends AppCompatActivity {
         }
     }
 
-    // Конвертируем dp в пиксели
     private int dpToPx(int dp) {
-        float density = getResources().getDisplayMetrics().density;
-        return Math.round(dp * density);
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
-    // Проверяем, находится ли точка внутри View
     private boolean isPointInsideView(float rawX, float rawY, View view) {
         if (view.getVisibility() != View.VISIBLE) {
             return false;
         }
 
-        // Получаем координаты view на экране
         int[] location = new int[2];
         view.getLocationOnScreen(location);
 
@@ -233,21 +207,17 @@ public class OnboardingActivity extends AppCompatActivity {
         int viewWidth = view.getWidth();
         int viewHeight = view.getHeight();
 
-        // Проверяем, попадает ли точка в границы view
         return (rawX >= viewX && rawX <= (viewX + viewWidth) &&
                 rawY >= viewY && rawY <= (viewY + viewHeight));
     }
 
-    // Обрабатываем касания на всем активити
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        // Если кнопка видна и касание в области кнопки - пропускаем событие
         if (buttonStart.getVisibility() == View.VISIBLE &&
                 isPointInsideView(ev.getRawX(), ev.getRawY(), buttonStart)) {
             return super.dispatchTouchEvent(ev);
         }
 
-        // Если касание в области индикаторов - пропускаем событие
         if (isPointInsideView(ev.getRawX(), ev.getRawY(), dotsContainer)) {
             return super.dispatchTouchEvent(ev);
         }

@@ -3,19 +3,28 @@
     package="com.example.cashbackapp">
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
+        <!-- Splash activity как главная -->
         <activity
-            android:name=".OnboardingActivity"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SimpleRegistrationActivity"
+            android:exported="false" />
 
         <activity
             android:name=".CategorySelectionActivity"

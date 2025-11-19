@@ -1,7 +1,9 @@
 package com.example.cashbackapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
@@ -13,6 +15,16 @@ public class CategorySelectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_selection);
+
+        // ДОБАВЛЕННЫЙ КОД - приветствие с именем пользователя
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String userName = prefs.getString("user_name", "Пользователь");
+
+        TextView title = findViewById(R.id.textTitle); // если есть
+        if (title != null) {
+            title.setText("Добро пожаловать, " + userName + "!");
+        }
+        // КОНЕЦ ДОБАВЛЕННОГО КОДА
 
         GridView gridViewCategories = findViewById(R.id.gridViewCategories);
         List<Category> categoryList = initializeCategories();

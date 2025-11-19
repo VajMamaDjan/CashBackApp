@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@android:color/white">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Регистрация"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="32dp"
+        android:textColor="#333333" />
+
+    <!-- Поле ввода имени -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ваше имя"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"
+        android:textColor="#666666" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Введите ваше имя"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:background="@drawable/edit_text_background"
+        android:layout_marginBottom="16dp"
+        android:maxLines="1" />
+
+    <!-- Поле ввода пароля -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Пароль"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"
+        android:textColor="#666666" />
+
+    <EditText
+        android:id="@+id/editTextPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Придумайте пароль"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:background="@drawable/edit_text_background"
+        android:layout_marginBottom="16dp"
+        android:maxLines="1"
+        android:inputType="textPassword"
+        android:imeOptions="actionDone" />
+
+    <!-- Подтверждение пароля -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Подтвердите пароль"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"
+        android:textColor="#666666" />
+
+    <!-- Подтверждение пароля -->
+    <EditText
+        android:id="@+id/editTextConfirmPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Повторите пароль"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:background="@drawable/edit_text_background"
+        android:layout_marginBottom="16dp"
+        android:maxLines="1"
+        android:inputType="textPassword"
+        android:imeOptions="actionDone" />
+
+    <!-- Секретный вопрос -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Секретный вопрос для восстановления"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"
+        android:textColor="#666666" />
+
+    <Spinner
+        android:id="@+id/spinnerSecretQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:background="@drawable/edit_text_background"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Ответ на секретный вопрос -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ваш ответ"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"
+        android:textColor="#666666" />
+
+    <EditText
+        android:id="@+id/editTextSecretAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Введите ответ на вопрос"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:background="@drawable/edit_text_background"
+        android:layout_marginBottom="32dp"
+        android:maxLines="1" />
+
+    <!-- Кнопка регистрации -->
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Зарегистрироваться"
+        android:textSize="16sp"
+        android:background="@drawable/button_primary"
+        android:textColor="@android:color/white"
+        android:paddingVertical="14dp" />
+
+    <!-- Ссылка "Восстановить пароль" -->
+    <TextView
+        android:id="@+id/textForgotPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Забыли данные для входа?"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        android:textColor="#2196F3"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Пароль будет сохранен локально на устройстве"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:textColor="#666666" />
+
+</LinearLayout>
