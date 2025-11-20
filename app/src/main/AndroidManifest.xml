@@ -26,6 +26,8 @@
             android:name=".SimpleRegistrationActivity"
             android:exported="false" />
 
+        <activity android:name=".MainMenuActivity" />
+
         <activity
             android:name=".CategorySelectionActivity"
             android:exported="false" />

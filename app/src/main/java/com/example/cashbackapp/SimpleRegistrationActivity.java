@@ -152,7 +152,9 @@ public class SimpleRegistrationActivity extends AppCompatActivity {
     }
 
     private void startMainApp() {
-        startActivity(new Intent(this, CategorySelectionActivity.class));
+        // ⬇️ Единственное важное изменение: теперь идём на главное меню
+        Intent intent = new Intent(this, MainMenuActivity.class);
+        startActivity(intent);
         finish();
     }
 }
