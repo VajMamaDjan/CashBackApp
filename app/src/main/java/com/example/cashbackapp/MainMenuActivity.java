@@ -60,7 +60,6 @@ public class MainMenuActivity extends AppCompatActivity {
         // Добавить категорию
         cardAddCategory.setOnClickListener(v -> {
             // TODO: открыть экран добавления категории
-            // Пример: startActivity(new Intent(this, CategorySelectionActivity.class));
         });
 
         // Текущий месяц

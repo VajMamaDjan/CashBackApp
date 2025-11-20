@@ -68,7 +68,7 @@ public class OnboardingActivity extends AppCompatActivity {
                 boolean isRegistered = prefs.getBoolean("user_registered", false);
 
                 if (isRegistered) {
-                    startActivity(new Intent(OnboardingActivity.this, CategorySelectionActivity.class));
+                    startActivity(new Intent(OnboardingActivity.this, MainMenuActivity.class));
                 } else {
                     startActivity(new Intent(OnboardingActivity.this, SimpleRegistrationActivity.class));
                 }

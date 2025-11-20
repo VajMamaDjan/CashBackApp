@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnSelectCategory = findViewById(R.id.btnSelectCategory);
 
         btnSelectCategory.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CategorySelectionActivity.class);
+            Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
             startActivity(intent);
         });
     }

@@ -29,7 +29,7 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent;
 
         if (isRegistered) {
-            intent = new Intent(this, CategorySelectionActivity.class);
+            intent = new Intent(this, MainMenuActivity.class);
         } else if (onboardingCompleted) {
             intent = new Intent(this, SimpleRegistrationActivity.class);
         } else {
