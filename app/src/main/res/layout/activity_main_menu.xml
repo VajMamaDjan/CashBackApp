@@ -26,7 +26,7 @@
             android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Управление категориями кешбека"
+            android:text="Управление категориями кэшбэка"
             android:textSize="14sp"
             android:textColor="@color/secondary_text"
             android:layout_marginBottom="24dp" />
@@ -61,7 +61,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_add"
-                        android:tint="@android:color/white" />
+                        card_view:tint="@android:color/white" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -85,7 +85,7 @@
                         android:id="@+id/tvAddDescription"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Создать новую категорию кешбека"
+                        android:text="Создать новую категорию кэшбэка"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp"
                         android:textColor="@android:color/white" />
@@ -102,7 +102,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             card_view:cardCornerRadius="24dp"
-            card_view:cardElevation="4dp"
+            card_view:cardElevation="0dp"
+            android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackground">
 
             <LinearLayout
@@ -110,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="20dp"
-                android:gravity="center_vertical">
+                android:background="@drawable/bg_month_current">
 
                 <FrameLayout
                     android:layout_width="48dp"
@@ -122,7 +123,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_calendar"
-                        android:tint="@android:color/white" />
+                        card_view:tint="@android:color/white" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -161,7 +162,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             card_view:cardCornerRadius="24dp"
-            card_view:cardElevation="4dp"
+            card_view:cardElevation="0dp"
+            android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackground">
 
             <LinearLayout
@@ -169,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="20dp"
-                android:gravity="center_vertical">
+                android:background="@drawable/bg_month_previous">
 
                 <FrameLayout
                     android:layout_width="48dp"
@@ -181,7 +183,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_history"
-                        android:tint="@android:color/white" />
+                        card_view:tint="@android:color/white" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -213,6 +215,7 @@
 
         </androidx.cardview.widget.CardView>
 
+
         <!-- Карточка "Совет" -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardTip"
@@ -235,8 +238,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_lightbulb"
-                    android:tint="@color/tip_icon"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    card_view:tint="@color/tip_icon" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -256,7 +259,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Регулярно проверяйте свои категории, чтобы максимизировать кешбек с каждой покупки"
+                        android:text="Регулярно проверяйте свои категории, чтобы максимизировать кэшбэк с каждой покупки"
                         android:textSize="14sp"
                         android:textColor="@color/secondary_text" />
                 </LinearLayout>

@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Кешбек Приложение"
+        android:text="Кэшбэк Приложение"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="50dp"
@@ -20,7 +20,7 @@
         android:id="@+id/btnSelectCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Выбрать категорию кешбека"
+        android:text="Выбрать категорию кэшбэка"
         android:textSize="18sp"
         android:padding="16dp"
         android:backgroundTint="#2196F3"
