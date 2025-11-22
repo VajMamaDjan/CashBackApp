@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             card_view:cardCornerRadius="24dp"
-            card_view:cardElevation="6dp"
+            card_view:cardElevation="0dp"
             android:foreground="?attr/selectableItemBackground">
 
             <RelativeLayout
@@ -259,7 +259,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Регулярно проверяйте свои категории, чтобы максимизировать кэшбэк с каждой покупки"
+                        android:text="Регулярно проверяйте свои категории, чтобы увеличить кэшбэк с каждой покупки"
                         android:textSize="14sp"
                         android:textColor="@color/secondary_text" />
                 </LinearLayout>
