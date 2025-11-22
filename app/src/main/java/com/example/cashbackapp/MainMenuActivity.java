@@ -1,13 +1,9 @@
 package com.example.cashbackapp;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import android.content.Intent;
-import android.graphics.Color;
+
 import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;

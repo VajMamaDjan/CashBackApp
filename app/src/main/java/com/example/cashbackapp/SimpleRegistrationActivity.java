@@ -9,9 +9,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class SimpleRegistrationActivity extends AppCompatActivity {
+public class SimpleRegistrationActivity extends BaseActivity {
 
     private SharedPreferences prefs;
     private EditText editTextName, editTextPassword, editTextConfirmPassword, editTextSecretAnswer;
@@ -86,10 +85,10 @@ public class SimpleRegistrationActivity extends AppCompatActivity {
     private void setupSecretQuestions() {
         String[] questions = {
                 "Девичья фамилия матери?",
-                "Имя первого питомца?",
+                "Имя первого учителя?",
                 "Любимый фильм?",
                 "Город рождения?",
-                "Кличка первого учителя?"
+                "Кличка первого питомца?"
         };
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(

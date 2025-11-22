@@ -1,15 +1,13 @@
 package com.example.cashbackapp;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class PasswordRecoveryActivity extends AppCompatActivity {
+public class PasswordRecoveryActivity extends BaseActivity {
 
     private SharedPreferences prefs;
     private TextView textSecretQuestion;
