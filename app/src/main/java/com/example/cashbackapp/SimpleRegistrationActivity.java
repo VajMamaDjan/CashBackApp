@@ -17,6 +17,11 @@ public class SimpleRegistrationActivity extends BaseActivity {
     private Spinner spinnerSecretQuestion;
 
     @Override
+    protected boolean useFullscreenStatusBar() {
+        return false;   // здесь fullscreen не нужен
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_registration);
@@ -109,8 +114,8 @@ public class SimpleRegistrationActivity extends BaseActivity {
             return false;
         }
 
-        if (password.isEmpty() || password.length() < 4) {
-            editTextPassword.setError("Пароль должен быть не менее 4 символов");
+        if (password.isEmpty() || password.length() < 6) {
+            editTextPassword.setError("Пароль должен быть не менее 6 символов");
             return false;
         }
 

@@ -24,7 +24,8 @@
 
         <activity
             android:name=".SimpleRegistrationActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity android:name=".MainMenuActivity" />
 

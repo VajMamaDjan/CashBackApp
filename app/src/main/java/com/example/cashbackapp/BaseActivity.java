@@ -17,6 +17,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         setupLightStatusBar();
     }
 
+    // по умолчанию все экраны — fullscreen
+    protected boolean useFullscreenStatusBar() {
+        return true;
+    }
+
     protected void setupLightStatusBar() {
         Window window = getWindow();
 
@@ -24,14 +29,17 @@ public abstract class BaseActivity extends AppCompatActivity {
             window.setStatusBarColor(Color.TRANSPARENT);
         }
 
-        View decor = window.getDecorView();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int flags = decor.getSystemUiVisibility();
-            flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            View decor = window.getDecorView();
+            int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+
+            if (useFullscreenStatusBar()) {
+                flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            }
+
             decor.setSystemUiVisibility(flags);
         }
     }
 }
+
