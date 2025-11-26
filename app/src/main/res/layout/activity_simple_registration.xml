@@ -134,20 +134,6 @@
             android:textColor="@android:color/white"
             android:paddingVertical="14dp" />
 
-        <!-- Ссылка "Восстановить пароль" -->
-        <TextView
-            android:id="@+id/textForgotPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Забыли данные для входа?"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:textColor="#2196F3"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="8dp" />
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -156,6 +142,19 @@
             android:gravity="center"
             android:layout_marginTop="24dp"
             android:textColor="#666666" />
+
+        <TextView
+            android:id="@+id/textGoToLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="У меня уже есть аккаунт — Войти"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:textColor="#2196F3"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp" />
 
     </LinearLayout>
 

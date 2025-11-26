@@ -14,7 +14,7 @@ public class MainActivity extends BaseActivity {
         Button btnSelectCategory = findViewById(R.id.btnSelectCategory);
 
         btnSelectCategory.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         });
     }

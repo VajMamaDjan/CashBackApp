@@ -9,24 +9,20 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
-public class SimpleRegistrationActivity extends BaseActivity {
+public class SimpleRegistrationActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
     private EditText editTextName, editTextPassword, editTextConfirmPassword, editTextSecretAnswer;
     private Spinner spinnerSecretQuestion;
 
     @Override
-    protected boolean useFullscreenStatusBar() {
-        return false;   // здесь fullscreen не нужен
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_registration);
 
-        // Включение кнопки "Назад" в ActionBar
+        // Кнопка "Назад" в ActionBar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Регистрация");
@@ -36,12 +32,16 @@ public class SimpleRegistrationActivity extends BaseActivity {
         initializeViews();
         setupSecretQuestions();
 
-        // Проверяем, не зарегистрирован ли уже пользователь
-        if (isUserRegistered()) {
+        // 👉 Читаем флаг: зашли ли сюда из LoginActivity для "повторной регистрации"
+        boolean allowReregistration = getIntent().getBooleanExtra("allow_reregistration", false);
+
+        // Если уже зарегистрирован И НЕ в режиме повторной регистрации → сразу в главное меню
+        if (isUserRegistered() && !allowReregistration) {
             startMainApp();
             return;
         }
 
+        // Кнопка "Зарегистрироваться"
         Button btnRegister = findViewById(R.id.btnRegister);
         btnRegister.setOnClickListener(v -> {
             if (validateInput()) {
@@ -50,30 +50,31 @@ public class SimpleRegistrationActivity extends BaseActivity {
             }
         });
 
-        // Обработчик для кнопки "Забыли данные для входа?"
-        TextView forgotPassword = findViewById(R.id.textForgotPassword);
-        forgotPassword.setOnClickListener(v -> {
-            startActivity(new Intent(this, PasswordRecoveryActivity.class));
-        });
+        // 👉 Кнопка-ссылка "У меня уже есть аккаунт — Войти"
+        TextView goToLogin = findViewById(R.id.textGoToLogin);
+        if (goToLogin != null) {
+            goToLogin.setOnClickListener(v -> {
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            });
+        }
     }
 
-    // Обработка нажатия кнопки "Назад" в ActionBar
+    // Возврат на Онбординг по стрелке "Назад" в ActionBar
     private void returnToLastOnboardingScreen() {
         Intent intent = new Intent(this, OnboardingActivity.class);
-        // Указываем конкретную позицию экрана (2 = третий экран)
         intent.putExtra("screen_position", 2);
         startActivity(intent);
         finish();
     }
 
-    // Обработка нажатия кнопки "Назад" в ActionBar
     @Override
     public boolean onSupportNavigateUp() {
         returnToLastOnboardingScreen();
         return true;
     }
 
-    // Обработка системной кнопки "Назад"
     @Override
     public void onBackPressed() {
         returnToLastOnboardingScreen();
@@ -90,10 +91,10 @@ public class SimpleRegistrationActivity extends BaseActivity {
     private void setupSecretQuestions() {
         String[] questions = {
                 "Девичья фамилия матери?",
-                "Имя первого учителя?",
+                "Имя первого питомца?",
                 "Любимый фильм?",
                 "Город рождения?",
-                "Кличка первого питомца?"
+                "Кличка первого учителя?"
         };
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -114,8 +115,8 @@ public class SimpleRegistrationActivity extends BaseActivity {
             return false;
         }
 
-        if (password.isEmpty() || password.length() < 6) {
-            editTextPassword.setError("Пароль должен быть не менее 6 символов");
+        if (password.isEmpty() || password.length() < 4) {
+            editTextPassword.setError("Пароль должен быть не менее 4 символов");
             return false;
         }
 
@@ -138,12 +139,16 @@ public class SimpleRegistrationActivity extends BaseActivity {
         String secretQuestion = spinnerSecretQuestion.getSelectedItem().toString();
         String secretAnswer = editTextSecretAnswer.getText().toString().trim();
 
+        String normalizedSecretAnswer = secretAnswer.trim().toLowerCase();
+        String passwordHash = PasswordUtils.hashString(password);
+        String secretAnswerHash = PasswordUtils.hashString(normalizedSecretAnswer);
+
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("user_registered", true);
         editor.putString("user_name", userName);
-        editor.putString("user_password", password);
+        editor.putString("user_password_hash", passwordHash);
         editor.putString("secret_question", secretQuestion);
-        editor.putString("secret_answer", secretAnswer.toLowerCase());
+        editor.putString("secret_answer_hash", secretAnswerHash);
         editor.putString("user_id", "user_" + System.currentTimeMillis());
         editor.putBoolean("onboarding_completed", true);
         editor.apply();
@@ -156,9 +161,7 @@ public class SimpleRegistrationActivity extends BaseActivity {
     }
 
     private void startMainApp() {
-        // ⬇️ Единственное важное изменение: теперь идём на главное меню
-        Intent intent = new Intent(this, MainMenuActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(this, MainMenuActivity.class));
         finish();
     }
 }

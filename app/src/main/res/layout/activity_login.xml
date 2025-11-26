@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Вход"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="32dp"
+            android:textColor="#333333" />
+
+        <!-- Имя -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ваше имя"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"
+            android:textColor="#666666" />
+
+        <EditText
+            android:id="@+id/editTextName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите ваше имя"
+            android:textSize="16sp"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:layout_marginBottom="16dp"
+            android:maxLines="1" />
+
+        <!-- Пароль -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Пароль"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"
+            android:textColor="#666666" />
+
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите пароль"
+            android:textSize="16sp"
+            android:padding="16dp"
+            android:background="@drawable/edit_text_background"
+            android:layout_marginBottom="24dp"
+            android:maxLines="1"
+            android:inputType="textPassword" />
+
+        <!-- Кнопка Войти -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Войти"
+            android:textSize="16sp"
+            android:background="@drawable/button_primary"
+            android:textColor="@android:color/white"
+            android:paddingVertical="14dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Забыли пароль -->
+        <TextView
+            android:id="@+id/btnToRecovery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Забыли данные для входа?"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:textColor="#2196F3"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp" />
+
+        <!-- Ссылка "У меня нет аккаунта — Зарегистрироваться" -->
+        <TextView
+            android:id="@+id/textGoToRegistration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="У меня ещё нет аккаунта — Зарегистрироваться"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginTop="4dp"
+            android:textColor="#2196F3"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp" />
+
+    </LinearLayout>
+
+</ScrollView>
