@@ -1,89 +1,63 @@
 package com.example.cashbackapp;
 
-import androidx.cardview.widget.CardView;
-
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.FrameLayout;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
+import androidx.cardview.widget.CardView;
 
-public class MainMenuActivity extends BaseActivity  {
+public class MainMenuActivity extends BaseActivity {
 
-    private CardView cardAddCategory;
-    private CardView cardCurrentMonth;
-    private CardView cardPreviousMonth;
-    private CardView cardTip;
+    private CardView cardAddBank;
+    private CardView cardBankSber;
+    private CardView cardBankTBank;
+    private FrameLayout profileButton;
 
-    private TextView tvCurrentMonthSubtitle;
-    private TextView tvPreviousMonthSubtitle;
+    @Override
+    protected boolean useFullscreenStatusBar() {
+        // Для главного меню можно оставить false, чтобы статус-бар был обычным
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        ImageView btnProfile = findViewById(R.id.btnProfile);
-
-        btnProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ProfileActivity.class);
-            startActivity(intent);
-        });
-
         initViews();
-        setupMonthTexts();
         setupClicks();
     }
 
     private void initViews() {
-        cardAddCategory = findViewById(R.id.cardAddCategory);
-        cardCurrentMonth = findViewById(R.id.cardCurrentMonth);
-        cardPreviousMonth = findViewById(R.id.cardPreviousMonth);
-        cardTip = findViewById(R.id.cardTip);
-
-        tvCurrentMonthSubtitle = findViewById(R.id.tvCurrentMonthSubtitle);
-        tvPreviousMonthSubtitle = findViewById(R.id.tvPreviousMonthSubtitle);
-    }
-
-    private void setupMonthTexts() {
-        Locale ru = new Locale("ru");
-        SimpleDateFormat sdf = new SimpleDateFormat("LLLL yyyy 'г.'", ru);
-
-        Calendar now = Calendar.getInstance();
-        String currentMonth = sdf.format(now.getTime());
-
-        Calendar prev = (Calendar) now.clone();
-        prev.add(Calendar.MONTH, -1);
-        String previousMonth = sdf.format(prev.getTime());
-
-        tvCurrentMonthSubtitle.setText(currentMonth);
-        tvPreviousMonthSubtitle.setText(previousMonth);
+        cardAddBank = findViewById(R.id.cardAddBank);
+        cardBankSber = findViewById(R.id.cardBankSber);
+        cardBankTBank = findViewById(R.id.cardBankTBank);
+        profileButton = findViewById(R.id.profileButton);
     }
 
     private void setupClicks() {
-        // Добавить категорию
-        cardAddCategory.setOnClickListener(v -> {
-            // TODO: открыть экран добавления категории
+        // Добавить банк
+        cardAddBank.setOnClickListener(v -> {
+            // TODO: открыть экран добавления банка
+            // Например: startActivity(new Intent(this, AddBankActivity.class));
         });
 
-        // Текущий месяц
-        cardCurrentMonth.setOnClickListener(v -> {
-            // TODO: открыть экран категорий текущего месяца
+        // Карточка банка "Сбер"
+        cardBankSber.setOnClickListener(v -> {
+            // TODO: открыть экран настроек кешбэка для Сбера
+            // startActivity(new Intent(this, BankDetailsActivity.class).putExtra("bank", "sber"));
         });
 
-        // Предыдущий месяц
-        cardPreviousMonth.setOnClickListener(v -> {
-            // TODO: открыть экран категорий предыдущего месяца
+        // Карточка банка "ТБанк"
+        cardBankTBank.setOnClickListener(v -> {
+            // TODO: открыть экран настроек кешбэка для ТБанка
+            // startActivity(new Intent(this, BankDetailsActivity.class).putExtra("bank", "tbank"));
         });
 
-        // Совет
-        cardTip.setOnClickListener(v -> {
-            // Можно показать тост/диалог с подсказкой
-            // Toast.makeText(this, "Проверяйте категории раз в месяц :)", Toast.LENGTH_SHORT).show();
+        // Кнопка профиля
+        profileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
         });
     }
 }

@@ -6,14 +6,12 @@
     android:background="@color/main_background"
     android:padding="16dp">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="28dp">
+        android:orientation="vertical">
 
-        <!-- Заголовок -->
+        <!-- Заголовок + кнопка профиля -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,9 +19,9 @@
 
             <LinearLayout
                 android:id="@+id/titleContainer"
-                android:orientation="vertical"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvTitle"
@@ -38,34 +36,41 @@
                     android:id="@+id/tvSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Управление категориями кешбека"
+                    android:text="Управление банками и кешбэком"
                     android:textSize="14sp"
                     android:textColor="@color/secondary_text" />
             </LinearLayout>
 
-            <!-- Кнопка профиля справа -->
-            <ImageView
-                android:id="@+id/btnProfile"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:src="@drawable/bg_person"
+            <!-- Кнопка профиля -->
+            <FrameLayout
+                android:id="@+id/profileButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_profile_button"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:padding="4dp"
+                android:padding="8dp"
+                android:elevation="6dp"
                 android:clickable="true"
-                android:focusable="true"
-                card_view:tint="@android:color/black" />
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_profile_user" />
+            </FrameLayout>
 
         </RelativeLayout>
 
-        <!-- Большая фиолетовая карточка "Добавить категорию" -->
+        <!-- Большая фиолетовая карточка "Добавить банк" -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardAddCategory"
+            android:id="@+id/cardAddBank"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             card_view:cardCornerRadius="24dp"
-            card_view:cardElevation="0dp"
+            card_view:cardElevation="6dp"
             android:foreground="?attr/selectableItemBackground">
 
             <RelativeLayout
@@ -92,29 +97,21 @@
                 </FrameLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/addBankTextContainer"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/flAddIconHolder"
                     android:layout_marginStart="20dp"
-                    android:orientation="vertical"
-                    android:gravity="center_vertical">
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvAddTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Добавить категорию"
+                        android:text="Добавить банк"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="@android:color/white" />
-
-                    <TextView
-                        android:id="@+id/tvAddDescription"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Создать новую категорию кэшбэка"
-                        android:textSize="14sp"
-                        android:layout_marginTop="4dp"
                         android:textColor="@android:color/white" />
                 </LinearLayout>
 
@@ -122,13 +119,24 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Карточка "Текущий месяц" -->
+        <!-- Заголовок секции "Мои банки" -->
+        <TextView
+            android:id="@+id/tvMyBanksTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Мои банки"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Карточка банка: Сбер -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardCurrentMonth"
+            android:id="@+id/cardBankSber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            card_view:cardCornerRadius="24dp"
+            card_view:cardCornerRadius="12dp"
             card_view:cardElevation="0dp"
             android:background="@android:color/transparent"
             android:foreground="?attr/selectableItemBackground">
@@ -137,42 +145,37 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="20dp"
+                android:padding="16dp"
+                android:gravity="center_vertical"
                 android:background="@drawable/bg_month_current">
 
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_circle_green">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_calendar"
-                        card_view:tint="@android:color/white" />
-                </FrameLayout>
+                <ImageView
+                    android:layout_width="43dp"
+                    android:layout_height="43dp"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_sber" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginStart="16dp">
 
                     <TextView
-                        android:id="@+id/tvCurrentMonthTitle"
+                        android:id="@+id/tvBankNameSber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Текущий месяц"
+                        android:text="Сбер"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/black" />
 
                     <TextView
-                        android:id="@+id/tvCurrentMonthSubtitle"
+                        android:id="@+id/tvBankSubtitleSber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ноябрь 2025 г."
+                        android:text="категорий выбрано 0 из 5"
                         android:textSize="14sp"
                         android:textColor="@color/secondary_text"
                         android:layout_marginTop="2dp" />
@@ -182,113 +185,60 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Карточка "Предыдущий месяц" -->
+        <!-- Карточка банка: ТБанк -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardPreviousMonth"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            card_view:cardCornerRadius="24dp"
-            card_view:cardElevation="0dp"
-            android:background="@android:color/transparent"
-            android:foreground="?attr/selectableItemBackground">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="20dp"
-                android:background="@drawable/bg_month_previous">
-
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_circle_blue">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_history"
-                        card_view:tint="@android:color/white" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvPreviousMonthTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Предыдущий месяц"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/black" />
-
-                    <TextView
-                        android:id="@+id/tvPreviousMonthSubtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="октябрь 2025 г."
-                        android:textSize="14sp"
-                        android:textColor="@color/secondary_text"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-
-        <!-- Карточка "Совет" -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardTip"
+            android:id="@+id/cardBankTBank"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            card_view:cardCornerRadius="24dp"
-            card_view:cardElevation="0dp"
-            android:foreground="?attr/selectableItemBackground">
+            card_view:cardCornerRadius="12dp"
+            card_view:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="20dp"
-                android:background="@drawable/bg_tip_card"
-                android:gravity="top">
+                android:padding="16dp"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_month_current">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_lightbulb"
-                    android:layout_marginTop="4dp"
-                    card_view:tint="@color/tip_icon" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    card_view:cardCornerRadius="14dp"
+                    android:elevation="0dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_tbank"
+                        android:scaleType="centerCrop" />
+
+                </androidx.cardview.widget.CardView>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginStart="16dp">
 
                     <TextView
+                        android:id="@+id/tvBankNameTBank"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Совет"
+                        android:text="ТБанк"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/black" />
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:id="@+id/tvBankSubtitleTBank"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Регулярно проверяйте свои категории, чтобы увеличить кэшбэк с каждой покупки"
+                        android:text="категорий выбрано 0 из 5"
                         android:textSize="14sp"
-                        android:textColor="@color/secondary_text" />
+                        android:textColor="@color/secondary_text"
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
 
             </LinearLayout>
