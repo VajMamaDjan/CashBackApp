@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="bank_names">
+        <item>Сбербанк</item>
+        <item>ВТБ</item>
+        <item>Газпромбанк</item>
+        <item>Альфа-Банк</item>
+        <item>Национальный Клиринговый Центр (НКЦ)</item>
+        <item>Россельхозбанк</item>
+        <item>Московский Кредитный Банк</item>
+        <item>Совкомбанк</item>
+        <item>Т-Банк</item>
+        <item>Банк ДОМ.РФ</item>
+        <item>Национальный Расчётный Депозитарий (НРД)</item>
+        <item>Райффайзенбанк</item>
+        <item>Банк Россия</item>
+        <item>Банк Санкт-Петербург</item>
+        <item>Новикомбанк</item>
+        <item>Ак Барс Банк</item>
+        <item>Ситибанк</item>
+        <item>Уралсиб</item>
+        <item>ЮниКредит Банк</item>
+        <item>ОТП Банк</item>
+        <item>МТС Банк</item>
+        <item>Почта Банк</item>
+        <item>БМ-Банк</item>
+        <item>РНКБ</item>
+        <item>ТКБ Банк</item>
+        <item>Дж.П. Морган Банк Интернешнл</item>
+        <item>Хоум Кредит Банк</item>
+        <item>УБРиР</item>
+        <item>Азиатско-Тихоокеанский Банк (АТБ)</item>
+        <item>Банк Точка</item>
+        <item>Росэксимбанк</item>
+        <item>Банк ЗЕНИТ</item>
+        <item>Абсолют Банк</item>
+        <item>Экспобанк</item>
+        <item>ОЗОН Банк</item>
+        <item>Драйв Клик Банк</item>
+        <item>НРБанк</item>
+        <item>Металлинвестбанк</item>
+        <item>Русский Стандарт</item>
+        <item>ЛОКО-Банк</item>
+        <item>Банк Аверс</item>
+        <item>Инвестторгбанк</item>
+        <item>Кредит Европа Банк</item>
+        <item>Кубань Кредит</item>
+        <item>Авто Финанс Банк</item>
+        <item>Примсоцбанк</item>
+        <item>Банк Синара</item>
+        <item>Банк Интеза</item>
+        <item>Газэнергобанк</item>
+        <item>Таврический Банк</item>
+        <item>ББР Банк</item>
+        <item>Ингосстрах Банк</item>
+        <item>Банк Левобережный</item>
+        <item>БКС Банк</item>
+        <item>Центр-Инвест</item>
+        <item>МСП Банк</item>
+        <item>Яндекс Банк</item>
+        <item>Сургутнефтегазбанк (СНГБ)</item>
+        <item>Ренессанс Кредит</item>
+        <item>Меткомбанк</item>
+        <item>ЦентроКредит</item>
+        <item>Авангард</item>
+        <item>Банк Финсервис</item>
+        <item>СДМ-Банк</item>
+        <item>Банк Солидарность</item>
+        <item>Коммерческий Индо Банк</item>
+        <item>SMBCR Bank (СМБСР Банк)</item>
+        <item>BMW Банк</item>
+        <item>Фора-Банк</item>
+        <item>ING Банк Евразия</item>
+        <item>МБ Банк</item>
+        <item>KEB HNB Банк (КЭБ ХэЭнБи)</item>
+        <item>Денизбанк Москва</item>
+        <item>Челябинвестбанк</item>
+        <item>China Construction Bank (Россия)</item>
+        <item>Банк Приморье</item>
+        <item>Платёжный Центр</item>
+        <item>Международный Финансовый Клуб (МФК Банк)</item>
+        <item>Банк Траст</item>
+        <item>Мобильная Карта</item>
+        <item>Челиндбанк</item>
+        <item>Банк СГБ</item>
+        <item>ПСКБ</item>
+        <item>Дальневосточный Банк</item>
+        <item>MUFG Банк (Евразия)</item>
+        <item>Ишбанк</item>
+        <item>Генбанк</item>
+        <item>Москоммерцбанк</item>
+        <item>Тимер Банк</item>
+        <item>СПБ Банк</item>
+        <item>Wildberries Банк</item>
+        <item>Банк Объединённый Капитал</item>
+        <item>Модульбанк</item>
+        <item>BNP Paribas Банк</item>
+        <item>ВУЗ-Банк</item>
+        <item>Реалист Банк</item>
+        <item>Азия-Инвест Банк</item>
+        <item>ИПБ Банк</item>
+        <item>Тойота Банк</item>
+        <item>Расчётные Решения</item>
+    </string-array>
+
+</resources>
