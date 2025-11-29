@@ -20,8 +20,6 @@ import java.util.Set;
 public class MainMenuActivity extends BaseActivity {
 
     private CardView cardAddBank;
-    private CardView cardBankSber;
-    private CardView cardBankTBank;
     private FrameLayout profileButton;
     private LinearLayout banksContainer;
     private SharedPreferences prefs;
@@ -41,14 +39,33 @@ public class MainMenuActivity extends BaseActivity {
         prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         allBanks = getResources().getStringArray(R.array.bank_names);
 
-        CardView cardAddBank = findViewById(R.id.cardAddBank);
-        banksContainer = findViewById(R.id.banksContainer); // сделаем такой id в layout
-
-        cardAddBank.setOnClickListener(v -> showBankPicker());
+        initViews();
+        setupClicks();
 
         // при старте загрузим уже выбранные банки
         loadSavedBanks();
     }
+
+    // ---------- ИНИЦИАЛИЗАЦИЯ ВЬЮ ----------
+
+    private void initViews() {
+        cardAddBank = findViewById(R.id.cardAddBank);
+        profileButton = findViewById(R.id.profileButton);
+        banksContainer = findViewById(R.id.banksContainer);
+    }
+
+    private void setupClicks() {
+        // Добавить банк
+        cardAddBank.setOnClickListener(v -> showBankPicker());
+
+        // Кнопка профиля
+        profileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainMenuActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    // ---------- РАБОТА С SharedPreferences ----------
 
     private void saveBank(String bankName) {
         Set<String> saved = new HashSet<>(
@@ -119,7 +136,7 @@ public class MainMenuActivity extends BaseActivity {
             ivLogo.setImageResource(R.drawable.ic_bank_placeholder);
         }
 
-        //Удаление по долгому нажатию
+        // Удаление по долгому нажатию
         itemView.setOnLongClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Удалить банк?")
@@ -136,36 +153,5 @@ public class MainMenuActivity extends BaseActivity {
         });
 
         banksContainer.addView(itemView);
-    }
-
-    private void initViews() {
-        cardAddBank = findViewById(R.id.cardAddBank);
-        profileButton = findViewById(R.id.profileButton);
-    }
-
-    private void setupClicks() {
-        // Добавить банк
-        cardAddBank.setOnClickListener(v -> {
-            // TODO: открыть экран добавления банка
-            // Например: startActivity(new Intent(this, AddBankActivity.class));
-        });
-
-        // Карточка банка "Сбер"
-        cardBankSber.setOnClickListener(v -> {
-            // TODO: открыть экран настроек кешбэка для Сбера
-            // startActivity(new Intent(this, BankDetailsActivity.class).putExtra("bank", "sber"));
-        });
-
-        // Карточка банка "ТБанк"
-        cardBankTBank.setOnClickListener(v -> {
-            // TODO: открыть экран настроек кешбэка для ТБанка
-            // startActivity(new Intent(this, BankDetailsActivity.class).putExtra("bank", "tbank"));
-        });
-
-        // Кнопка профиля
-        profileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ProfileActivity.class);
-            startActivity(intent);
-        });
     }
 }
