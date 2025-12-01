@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -84,6 +85,18 @@ public class MainMenuActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // каждый раз при возврате на экран перечитываем банки из prefs
+        reloadBanks();
+    }
+
+    private void reloadBanks() {
+        banksContainer.removeAllViews(); // очищаем старые карточки
+        loadSavedBanks();                // заново добавляем из SharedPreferences
+    }
+
     private void loadSavedBanks() {
         Set<String> saved = prefs.getStringSet("selected_banks", new HashSet<>());
         for (String bank : saved) {
@@ -151,6 +164,14 @@ public class MainMenuActivity extends BaseActivity {
                     .show();
             return true; // событие обработано
         });
+
+        SwipeRefreshLayout swipeRefresh = findViewById(R.id.swipeRefresh);
+
+        swipeRefresh.setOnRefreshListener(() -> {
+            reloadBanks();                      // перечитали
+            swipeRefresh.setRefreshing(false);  // ВЫКЛЮЧИЛИ индикатор!
+        });
+
 
         banksContainer.addView(itemView);
     }
