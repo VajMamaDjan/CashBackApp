@@ -6,14 +6,19 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +47,28 @@ public class MainMenuActivity extends BaseActivity {
 
         initViews();
         setupClicks();
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
+
+        // Текущая вкладка – "Банки"
+        bottomNavigationView.setSelectedItemId(R.id.nav_banks);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_banks) {
+                // уже на этом экране, ничего не делаем
+                return true;
+            } else if (id == R.id.nav_analytics) {
+                startActivity(new Intent(this, AnalyticsActivity.class));
+                overridePendingTransition(0, 0); // без анимации
+                return true;
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SettingsActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+            return false;
+        });
 
         // при старте загрузим уже выбранные банки
         loadSavedBanks();
@@ -107,21 +134,54 @@ public class MainMenuActivity extends BaseActivity {
     // ---------- ДИАЛОГ ВЫБОРА БАНКА ----------
 
     private void showBankPicker() {
-        new AlertDialog.Builder(this)
-                .setTitle("Выберите банк")
-                .setItems(allBanks, (dialog, which) -> {
-                    String selected = allBanks[which];
+        // создаём bottom sheet
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
 
-                    // Проверка на дубликат
-                    if (isBankAlreadyAdded(selected)) {
-                        Toast.makeText(this, "Банк уже добавлен", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+        // подгружаем layout
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_banks, null);
+        bottomSheetDialog.setContentView(view);
 
-                    addBankCard(selected);
-                    saveBank(selected);
-                })
-                .show();
+        TextView tvTitle = view.findViewById(R.id.tvBottomSheetTitle);
+        // можно при желании менять текст tvTitle
+
+        ListView listView = view.findViewById(R.id.listBanks);
+
+        // адаптер для списка банков
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                allBanks
+        );
+        listView.setAdapter(adapter);
+
+        // обработчик клика по банку
+        listView.setOnItemClickListener((parent, v, position, id) -> {
+            String selected = allBanks[position];
+
+            // Проверка на дубликат
+            if (isBankAlreadyAdded(selected)) {
+                Toast.makeText(this, "Банк уже добавлен", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            addBankCard(selected);
+            saveBank(selected);
+
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetDialog.show();
+
+        View bottomSheet = bottomSheetDialog.getDelegate().findViewById(
+                com.google.android.material.R.id.design_bottom_sheet);
+
+        if (bottomSheet != null) {
+            // 35% высоты экрана
+            int targetHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.4);
+
+            bottomSheet.getLayoutParams().height = targetHeight;
+            bottomSheet.requestLayout();
+        }
     }
 
     private boolean isBankAlreadyAdded(String bankName) {

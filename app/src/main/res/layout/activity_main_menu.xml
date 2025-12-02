@@ -1,159 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    android:id="@+id/swipeRefresh"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:background="@color/main_background">
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <!-- ТЯНЕМ ВНИЗ ДЛЯ ОБНОВЛЕНИЯ -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/main_background"
-        android:padding="16dp">
+        android:layout_above="@id/bottomNavigation">
 
-        <LinearLayout
+        <ScrollView
+            android:id="@+id/scrollContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:padding="16dp">
 
-            <!-- Заголовок + кнопка профиля -->
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:id="@+id/titleContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Главное меню"
-                        android:textSize="26sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/black" />
-
-                    <TextView
-                        android:id="@+id/tvSubtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Управление банками и кешбэком"
-                        android:textSize="14sp"
-                        android:textColor="@color/secondary_text" />
-                </LinearLayout>
-
-                <!-- Кнопка профиля -->
-                <FrameLayout
-                    android:id="@+id/profileButton"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_profile_button"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:padding="8dp"
-                    android:elevation="6dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_profile_user" />
-                </FrameLayout>
-
-            </RelativeLayout>
-
-            <!-- Большая фиолетовая карточка "Добавить банк" -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardAddBank"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                card_view:cardCornerRadius="24dp"
-                card_view:cardElevation="6dp"
-                android:foreground="?attr/selectableItemBackground">
-
-                <LinearLayout
+                <!-- Заголовок + кнопка профиля -->
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/bg_add_category">
+                    android:layout_marginBottom="24dp">
 
-                    <!-- КРУГ С ПЛЮСОМ -->
+                    <LinearLayout
+                        android:id="@+id/titleContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Главное меню"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black" />
+
+                        <TextView
+                            android:id="@+id/tvSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Управление банками и кешбэком"
+                            android:textSize="14sp"
+                            android:textColor="@color/secondary_text" />
+                    </LinearLayout>
+
+                    <!-- Кнопка профиля -->
                     <FrameLayout
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_icon_circle">
+                        android:id="@+id/profileButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_profile_button"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:padding="8dp"
+                        android:elevation="6dp"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_add"
-                            card_view:tint="@android:color/white" />
+                            android:src="@drawable/ic_profile_user" />
                     </FrameLayout>
 
-                    <!-- ТЕКСТОВОЙ БЛОК -->
+                </RelativeLayout>
+
+                <!-- Большая фиолетовая карточка "Добавить банк" -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardAddBank"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    card_view:cardCornerRadius="24dp"
+                    card_view:cardElevation="6dp"
+                    android:foreground="?attr/selectableItemBackground">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:orientation="vertical"
-                        android:gravity="center_vertical">
+                        android:orientation="horizontal"
+                        android:padding="20dp"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_add_category">
 
-                        <!-- Основной текст -->
-                        <TextView
-                            android:id="@+id/tvAddTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Добавить банк"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/white" />
+                        <!-- КРУГ С ПЛЮСОМ -->
+                        <FrameLayout
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_icon_circle">
 
-                        <!-- Дополнительный текст -->
-                        <TextView
-                            android:id="@+id/tvAddSubtitle"
-                            android:layout_width="wrap_content"
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_add"
+                                card_view:tint="@android:color/white" />
+                        </FrameLayout>
+
+                        <!-- ТЕКСТОВОЙ БЛОК -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="для выбора кэшбэка за покупки"
-                            android:textSize="14sp"
-                            android:layout_marginTop="4dp"
-                            android:textColor="#E6FFFFFF" />
+                            android:layout_marginStart="20dp"
+                            android:orientation="vertical"
+                            android:gravity="center_vertical">
+
+                            <!-- Основной текст -->
+                            <TextView
+                                android:id="@+id/tvAddTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Добавить банк"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@android:color/white" />
+
+                            <!-- Дополнительный текст -->
+                            <TextView
+                                android:id="@+id/tvAddSubtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="для выбора кэшбэка за покупки"
+                                android:textSize="14sp"
+                                android:layout_marginTop="4dp"
+                                android:textColor="#E6FFFFFF" />
+                        </LinearLayout>
+
                     </LinearLayout>
 
-                </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-            </androidx.cardview.widget.CardView>
+                <!-- Заголовок секции "Мои банки" -->
+                <TextView
+                    android:id="@+id/tvMyBanksTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Мои банки"
+                    android:textSize="18sp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="12dp" />
 
-            <!-- Заголовок секции "Мои банки" -->
-            <TextView
-                android:id="@+id/tvMyBanksTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Мои банки"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="12dp" />
+                <!-- Контейнер для динамически добавляемых карточек банков -->
+                <LinearLayout
+                    android:id="@+id/banksContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
 
-            <!-- Контейнер для динамически добавляемых карточек банков -->
-            <LinearLayout
-                android:id="@+id/banksContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
+            </LinearLayout>
 
-        </LinearLayout>
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    </ScrollView>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        app:menu="@menu/bottom_navigation_menu"
+        app:labelVisibilityMode="labeled"
+        style="@style/BottomNavStyle" />
+
+</RelativeLayout>
