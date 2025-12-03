@@ -3,10 +3,16 @@ package com.example.cashbackapp;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,11 +21,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -134,53 +144,150 @@ public class MainMenuActivity extends BaseActivity {
     // ---------- ДИАЛОГ ВЫБОРА БАНКА ----------
 
     private void showBankPicker() {
-        // создаём bottom sheet
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
 
-        // подгружаем layout
-        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_banks, null);
-        bottomSheetDialog.setContentView(view);
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_banks, null);
+        bottomSheetDialog.setContentView(sheetView);
 
-        TextView tvTitle = view.findViewById(R.id.tvBottomSheetTitle);
-        // можно при желании менять текст tvTitle
+        ListView lvBanks = sheetView.findViewById(R.id.listBanks);
+        TextView tvTitle = sheetView.findViewById(R.id.tvBottomSheetTitle);
+        EditText etSearch = sheetView.findViewById(R.id.etSearchBank);
 
-        ListView listView = view.findViewById(R.id.listBanks);
-
-        // адаптер для списка банков
+        // Адаптер на основе списка банков
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_list_item_1,
-                allBanks
+                new ArrayList<>(Arrays.asList(allBanks))
         );
-        listView.setAdapter(adapter);
+        lvBanks.setAdapter(adapter);
 
-        // обработчик клика по банку
-        listView.setOnItemClickListener((parent, v, position, id) -> {
-            String selected = allBanks[position];
+        // --- Иконки для поля поиска ---
+        Drawable searchDrawable = ContextCompat.getDrawable(this, R.drawable.ic_search);
+        Drawable clearDrawable = ContextCompat.getDrawable(this, R.drawable.ic_clear);
 
-            // Проверка на дубликат
-            if (isBankAlreadyAdded(selected)) {
-                Toast.makeText(this, "Банк уже добавлен", Toast.LENGTH_SHORT).show();
-                return;
+        if (searchDrawable != null) {
+            searchDrawable.setBounds(0, 0,
+                    searchDrawable.getIntrinsicWidth(),
+                    searchDrawable.getIntrinsicHeight());
+        }
+        if (clearDrawable != null) {
+            clearDrawable.setBounds(0, 0,
+                    clearDrawable.getIntrinsicWidth(),
+                    clearDrawable.getIntrinsicHeight());
+        }
+
+        // Изначально показываем только лупу слева, без крестика
+        etSearch.setCompoundDrawables(
+                searchDrawable,   // left
+                null,
+                null,             // right = null
+                null
+        );
+
+        // ---- Фильтрация + показ/скрытие крестика ----
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s);
+
+                if (s.length() > 0) {
+                    // есть текст → показываем крестик справа
+                    etSearch.setCompoundDrawables(
+                            searchDrawable,
+                            null,
+                            clearDrawable,
+                            null
+                    );
+                } else {
+                    // нет текста → убираем крестик
+                    etSearch.setCompoundDrawables(
+                            searchDrawable,
+                            null,
+                            null,
+                            null
+                    );
+                }
             }
 
-            addBankCard(selected);
-            saveBank(selected);
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // ---- Обработка нажатия на крестик справа ----
+        etSearch.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP && clearDrawable != null) {
+                // координата X нажатия
+                int touchX = (int) event.getX();
+                int width = etSearch.getWidth();
+                int paddingRight = etSearch.getPaddingRight();
+                int drawableWidth = clearDrawable.getBounds().width();
+
+                // зона нажатия: справа, где нарисован крестик
+                int clearStart = width - paddingRight - drawableWidth;
+                if (touchX >= clearStart) {
+                    etSearch.setText(""); // очистить текст
+                    adapter.getFilter().filter(null); // вернуть полный список
+                    return true; // событие обработано
+                }
+            }
+            return false; // остальные события не трогаем
+        });
+
+        // ---- Клик по банку ----
+        lvBanks.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = adapter.getItem(position);
+            if (selected == null) return;
+
+            if (isBankAlreadyAdded(selected)) {
+                Toast.makeText(this, "Банк уже добавлен", Toast.LENGTH_SHORT).show();
+            } else {
+                addBankCard(selected);
+                saveBank(selected);
+            }
 
             bottomSheetDialog.dismiss();
         });
 
         bottomSheetDialog.show();
 
-        View bottomSheet = bottomSheetDialog.getDelegate().findViewById(
-                com.google.android.material.R.id.design_bottom_sheet);
+        // ---- Ограничение высоты и свайп по заголовку ----
+        View bottomSheet = bottomSheetDialog.getDelegate()
+                .findViewById(com.google.android.material.R.id.design_bottom_sheet);
 
         if (bottomSheet != null) {
-            // 35% высоты экрана
-            int targetHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.4);
+            BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+            behavior.setDraggable(false); // нельзя тянуть за любую область
 
+            int targetHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.45);
             bottomSheet.getLayoutParams().height = targetHeight;
             bottomSheet.requestLayout();
+
+            final float[] startY = new float[1];
+            final int threshold = (int) (getResources().getDisplayMetrics().density * 40); // ~40dp
+
+            tvTitle.setOnTouchListener((v, event) -> {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startY[0] = event.getY();
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        float diffY = event.getY() - startY[0];
+                        if (diffY > threshold) {
+                            bottomSheetDialog.dismiss();
+                            return true;
+                        }
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        return true;
+                }
+                return false;
+            });
         }
     }
 
@@ -193,14 +300,16 @@ public class MainMenuActivity extends BaseActivity {
 
     private void addBankCard(String bankName) {
         View itemView = LayoutInflater.from(this)
-                .inflate(R.layout.item_bank, banksContainer, false);
+                .inflate(R.layout.item_bank_swipe, banksContainer, false);
 
         TextView tvName = itemView.findViewById(R.id.tvBankName);
         ImageView ivLogo = itemView.findViewById(R.id.ivBankLogo);
+        View cardContent = itemView.findViewById(R.id.cardContent);
+        View deleteBackground = itemView.findViewById(R.id.deleteBackground);
 
         tvName.setText(bankName);
 
-        // логотипы по условию
+        // Логотипы
         if (bankName.contains("Сбер")) {
             ivLogo.setImageResource(R.drawable.ic_sber);
         } else if (bankName.contains("Т-Банк") || bankName.contains("ТБанк")) {
@@ -209,29 +318,96 @@ public class MainMenuActivity extends BaseActivity {
             ivLogo.setImageResource(R.drawable.ic_bank_placeholder);
         }
 
-        // Удаление по долгому нажатию
-        itemView.setOnLongClickListener(v -> {
+        // ---- Логика свайпа ----
+        final float[] downX = new float[1];
+        final float[] startTranslationX = new float[1];
+        final float swipeThreshold = getResources().getDisplayMetrics().density * 40; // порог ~40dp
+        final float maxSwipe = getResources().getDisplayMetrics().density * 160;
+
+        cardContent.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    downX[0] = event.getX();
+                    startTranslationX[0] = cardContent.getTranslationX();
+                    return true;
+
+                case MotionEvent.ACTION_MOVE: {
+                    float moveX = event.getX();
+                    float diff = moveX - downX[0];
+
+                    // новое положение = то, что было, плюс сдвиг пальца
+                    float newTranslation = startTranslationX[0] + diff;
+
+                    // не даём уезжать вправо дальше исходной позиции
+                    if (newTranslation > 0) {
+                        newTranslation = 0;
+                    }
+
+                    // не даём уезжать влево больше, чем -maxSwipe
+                    float max = maxSwipe > 0 ? maxSwipe : getResources().getDisplayMetrics().density * 120;
+                    if (newTranslation < -max) {
+                        newTranslation = -max;
+                    }
+
+                    cardContent.setTranslationX(newTranslation);
+
+                    // если есть сдвиг влево — показываем красный фон
+                    if (newTranslation < 0) {
+                        deleteBackground.setVisibility(View.VISIBLE);
+                    } else if (newTranslation == 0) {
+                        deleteBackground.setVisibility(View.GONE);
+                    }
+
+                    return true;
+                }
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL: {
+                    float currentTranslation = cardContent.getTranslationX();
+                    float max = maxSwipe > 0 ? maxSwipe : getResources().getDisplayMetrics().density * 120;
+
+                    if (Math.abs(currentTranslation) < swipeThreshold) {
+                        // мало потянули → закрываем обратно
+                        cardContent.animate()
+                                .translationX(0)
+                                .setDuration(150)
+                                .withEndAction(() ->
+                                        deleteBackground.setVisibility(View.GONE))
+                                .start();
+                    } else {
+                        // достаточно потянули → раскрываем до конца (надпись полностью видна)
+                        deleteBackground.setVisibility(View.VISIBLE);
+                        cardContent.animate()
+                                .translationX(-max)
+                                .setDuration(150)
+                                .start();
+                    }
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // Нажатие на красную область "Удалить банк"
+        deleteBackground.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Удалить банк?")
                     .setMessage("Удалить «" + bankName + "» из списка?")
                     .setPositiveButton("Удалить", (dialog, which) -> {
-                        // убираем из SharedPreferences
                         removeBank(bankName);
-                        // убираем карточку с экрана
                         banksContainer.removeView(itemView);
                     })
-                    .setNegativeButton("Отмена", null)
+                    .setNegativeButton("Отмена", (dialog, which) -> {
+                        // вернуть карточку назад и спрятать фон
+                        cardContent.animate()
+                                .translationX(0)
+                                .setDuration(150)
+                                .withEndAction(() ->
+                                        deleteBackground.setVisibility(View.GONE))
+                                .start();
+                    })
                     .show();
-            return true; // событие обработано
         });
-
-        SwipeRefreshLayout swipeRefresh = findViewById(R.id.swipeRefresh);
-
-        swipeRefresh.setOnRefreshListener(() -> {
-            reloadBanks();                      // перечитали
-            swipeRefresh.setRefreshing(false);  // ВЫКЛЮЧИЛИ индикатор!
-        });
-
 
         banksContainer.addView(itemView);
     }
