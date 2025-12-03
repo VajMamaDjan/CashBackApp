@@ -1,5 +1,6 @@
 package com.example.cashbackapp;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -143,6 +144,7 @@ public class MainMenuActivity extends BaseActivity {
 
     // ---------- ДИАЛОГ ВЫБОРА БАНКА ----------
 
+    @SuppressLint("ClickableViewAccessibility")
     private void showBankPicker() {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
 
@@ -254,8 +256,7 @@ public class MainMenuActivity extends BaseActivity {
         bottomSheetDialog.show();
 
         // ---- Ограничение высоты и свайп по заголовку ----
-        View bottomSheet = bottomSheetDialog.getDelegate()
-                .findViewById(com.google.android.material.R.id.design_bottom_sheet);
+        View bottomSheet = (View) sheetView.getParent();
 
         if (bottomSheet != null) {
             BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
