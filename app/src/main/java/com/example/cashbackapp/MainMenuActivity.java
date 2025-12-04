@@ -12,6 +12,7 @@ import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -324,7 +325,7 @@ public class MainMenuActivity extends BaseActivity {
         final float density = getResources().getDisplayMetrics().density;
 
         final float maxSwipe      = density * 145f;   // Максимальный вылет
-        final long  animDuration  = 150L;             // Мягкая анимация
+        final long  animDuration  = 160L;             // Мягкая анимация
 
         // Порог для открытия — почти нулевой (мгновенное открытие)
         final float openThresholdPart  = 0.05f;       // 5% пути
@@ -423,23 +424,108 @@ public class MainMenuActivity extends BaseActivity {
             return false;
         });
 
-        // Удаление банка
-        deleteBackground.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Удалить банк?")
-                    .setMessage("Удалить «" + bankName + "» из списка?")
-                    .setPositiveButton("Удалить", (dialog, which) -> {
-                        removeBank(bankName);
-                        banksContainer.removeView(itemView);
-                    })
-                    .setNegativeButton("Отмена", (dialog, which) -> {
+        // свайп и тап по красной зоне "Удалить банк"
+        final float touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+        final float[] delDownX = new float[1];
+        final float[] delDownY = new float[1];
+        final float[] delStartTranslationX = new float[1];
+        final boolean[] delIsDragging = new boolean[1];
+
+        deleteBackground.setOnTouchListener((v, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    delDownX[0] = event.getX();
+                    delDownY[0] = event.getY();
+                    delStartTranslationX[0] = cardContent.getTranslationX();
+                    delIsDragging[0] = false;
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    return true;
+
+                case MotionEvent.ACTION_MOVE: {
+                    float dx = event.getX() - delDownX[0];
+                    float dy = event.getY() - delDownY[0];
+
+                    // решаем, это свайп или ещё потенциальный тап
+                    if (!delIsDragging[0]) {
+                        if (Math.abs(dx) > touchSlop && Math.abs(dx) > Math.abs(dy)) {
+                            delIsDragging[0] = true; // начинаем тащить
+                        } else {
+                            return true; // ждём UP для тапа
+                        }
+                    }
+
+                    float newTranslation = delStartTranslationX[0] + dx;
+
+                    if (newTranslation > 0) newTranslation = 0;
+                    if (newTranslation < -maxSwipe) newTranslation = -maxSwipe;
+
+                    cardContent.setTranslationX(newTranslation);
+
+                    if (newTranslation < 0) {
+                        deleteBackground.setVisibility(View.VISIBLE);
+                    } else {
+                        deleteBackground.setVisibility(View.GONE);
+                    }
+
+                    return true;
+                }
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL: {
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+
+                    float dx = event.getX() - delDownX[0];
+                    float dy = event.getY() - delDownY[0];
+
+                    // если не тянули (нет драг-жеста) → считаем это тапом → диалог
+                    if (!delIsDragging[0] &&
+                            Math.abs(dx) < touchSlop &&
+                            Math.abs(dy) < touchSlop) {
+
+                        new AlertDialog.Builder(this)
+                                .setTitle("Удалить банк?")
+                                .setMessage("Удалить «" + bankName + "» из списка?")
+                                .setPositiveButton("Удалить", (dialog, which) -> {
+                                    removeBank(bankName);
+                                    banksContainer.removeView(itemView);
+                                })
+                                .setNegativeButton("Отмена", (dialog, which) -> {
+                                    cardContent.animate()
+                                            .translationX(0)
+                                            .setDuration(animDuration)
+                                            .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
+                                            .start();
+                                })
+                                .show();
+
+                        return true;
+                    }
+
+                    // если тянули → завершаем свайп (логика закрытия/оставить открытой)
+                    float current = cardContent.getTranslationX();
+                    float openedPart = Math.abs(current) / maxSwipe;
+
+                    if (openedPart < closeThresholdPart) {
+                        // закрыть
                         cardContent.animate()
                                 .translationX(0)
                                 .setDuration(animDuration)
                                 .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
                                 .start();
-                    })
-                    .show();
+                    } else {
+                        // оставить полностью открытой
+                        deleteBackground.setVisibility(View.VISIBLE);
+                        cardContent.animate()
+                                .translationX(-maxSwipe)
+                                .setDuration(animDuration)
+                                .start();
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
         });
 
         banksContainer.addView(itemView);
