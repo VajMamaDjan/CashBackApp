@@ -12,6 +12,7 @@ import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -298,8 +299,8 @@ public class MainMenuActivity extends BaseActivity {
     }
 
     // ---------- ДОБАВЛЕНИЕ КАРТОЧКИ БАНКА ----------
-
     private void addBankCard(String bankName) {
+
         View itemView = LayoutInflater.from(this)
                 .inflate(R.layout.item_bank_swipe, banksContainer, false);
 
@@ -319,77 +320,110 @@ public class MainMenuActivity extends BaseActivity {
             ivLogo.setImageResource(R.drawable.ic_bank_placeholder);
         }
 
-        // ---- Логика свайпа ----
+        // ---------------- Настройки профиля A (упрощённые) ----------------
+        final float density = getResources().getDisplayMetrics().density;
+
+        final float maxSwipe      = density * 145f;   // Максимальный вылет
+        final long  animDuration  = 150L;             // Мягкая анимация
+
+        // Порог для открытия — почти нулевой (мгновенное открытие)
+        final float openThresholdPart  = 0.05f;       // 5% пути
+
+        // Порог для закрытия — очень лёгкий
+        final float closeThresholdPart = 0.85f;       // если осталось < 85% → закрыть
+
+        // -------------------------------------------------------------------
+
         final float[] downX = new float[1];
         final float[] startTranslationX = new float[1];
-        final float swipeThreshold = getResources().getDisplayMetrics().density * 40; // порог ~40dp
-        final float maxSwipe = getResources().getDisplayMetrics().density * 160;
 
         cardContent.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
+            switch (event.getActionMasked()) {
+
                 case MotionEvent.ACTION_DOWN:
                     downX[0] = event.getX();
                     startTranslationX[0] = cardContent.getTranslationX();
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
                     return true;
 
                 case MotionEvent.ACTION_MOVE: {
                     float moveX = event.getX();
-                    float diff = moveX - downX[0];
+                    float diffX = moveX - downX[0];
 
-                    // новое положение = то, что было, плюс сдвиг пальца
-                    float newTranslation = startTranslationX[0] + diff;
+                    float newTranslation = startTranslationX[0] + diffX;
 
-                    // не даём уезжать вправо дальше исходной позиции
-                    if (newTranslation > 0) {
-                        newTranslation = 0;
-                    }
+                    // Не вправо
+                    if (newTranslation > 0) newTranslation = 0;
 
-                    // не даём уезжать влево больше, чем -maxSwipe
-                    float max = maxSwipe > 0 ? maxSwipe : getResources().getDisplayMetrics().density * 120;
-                    if (newTranslation < -max) {
-                        newTranslation = -max;
-                    }
+                    // Не слишком влево
+                    if (newTranslation < -maxSwipe) newTranslation = -maxSwipe;
 
                     cardContent.setTranslationX(newTranslation);
 
-                    // если есть сдвиг влево — показываем красный фон
+                    // Фон появляется сразу при малейшем движении влево
                     if (newTranslation < 0) {
                         deleteBackground.setVisibility(View.VISIBLE);
-                    } else if (newTranslation == 0) {
+                    } else {
                         deleteBackground.setVisibility(View.GONE);
                     }
 
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
                     return true;
                 }
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL: {
-                    float currentTranslation = cardContent.getTranslationX();
-                    float max = maxSwipe > 0 ? maxSwipe : getResources().getDisplayMetrics().density * 120;
 
-                    if (Math.abs(currentTranslation) < swipeThreshold) {
-                        // мало потянули → закрываем обратно
-                        cardContent.animate()
-                                .translationX(0)
-                                .setDuration(150)
-                                .withEndAction(() ->
-                                        deleteBackground.setVisibility(View.GONE))
-                                .start();
+                    float current = cardContent.getTranslationX();
+                    float openedPart = Math.abs(current) / maxSwipe;
+
+                    boolean startedClosed = Math.abs(startTranslationX[0]) < maxSwipe * 0.5f;
+
+                    if (startedClosed) {
+                        // Жест "Открыть"
+                        if (openedPart < openThresholdPart) {
+                            // Слишком маленький — закрыть назад
+                            cardContent.animate()
+                                    .translationX(0)
+                                    .setDuration(animDuration)
+                                    .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
+                                    .start();
+                        } else {
+                            // Открыть полностью
+                            deleteBackground.setVisibility(View.VISIBLE);
+                            cardContent.animate()
+                                    .translationX(-maxSwipe)
+                                    .setDuration(animDuration)
+                                    .start();
+                        }
                     } else {
-                        // достаточно потянули → раскрываем до конца (надпись полностью видна)
-                        deleteBackground.setVisibility(View.VISIBLE);
-                        cardContent.animate()
-                                .translationX(-max)
-                                .setDuration(150)
-                                .start();
+                        // Жест "Закрыть"
+                        if (openedPart < closeThresholdPart) {
+                            // Достаточно чуть вернуть — закрываем
+                            cardContent.animate()
+                                    .translationX(0)
+                                    .setDuration(animDuration)
+                                    .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
+                                    .start();
+                        } else {
+                            // Осталось много открытого — оставляем открытой
+                            deleteBackground.setVisibility(View.VISIBLE);
+                            cardContent.animate()
+                                    .translationX(-maxSwipe)
+                                    .setDuration(animDuration)
+                                    .start();
+                        }
                     }
+
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
                     return true;
                 }
             }
+
             return false;
         });
 
-        // Нажатие на красную область "Удалить банк"
+        // Удаление банка
         deleteBackground.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Удалить банк?")
@@ -399,12 +433,10 @@ public class MainMenuActivity extends BaseActivity {
                         banksContainer.removeView(itemView);
                     })
                     .setNegativeButton("Отмена", (dialog, which) -> {
-                        // вернуть карточку назад и спрятать фон
                         cardContent.animate()
                                 .translationX(0)
-                                .setDuration(150)
-                                .withEndAction(() ->
-                                        deleteBackground.setVisibility(View.GONE))
+                                .setDuration(animDuration)
+                                .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
                                 .start();
                     })
                     .show();
@@ -412,4 +444,6 @@ public class MainMenuActivity extends BaseActivity {
 
         banksContainer.addView(itemView);
     }
+
+
 }
