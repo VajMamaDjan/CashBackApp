@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.ViewConfiguration;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -40,6 +41,9 @@ public class MainMenuActivity extends BaseActivity {
     private LinearLayout banksContainer;
     private SharedPreferences prefs;
     private String[] allBanks;
+    private LinearLayout layoutMyBanksHeader;
+    private ImageView ivMyBanksArrow;
+    private boolean isBanksExpanded = true;
 
     @Override
     protected boolean useFullscreenStatusBar() {
@@ -84,12 +88,44 @@ public class MainMenuActivity extends BaseActivity {
         loadSavedBanks();
     }
 
+    private void toggleBanksList() {
+        isBanksExpanded = !isBanksExpanded;
+
+        if (isBanksExpanded) {
+            // показываем
+            banksContainer.setVisibility(View.VISIBLE);
+
+            // лёгкая анимация появления
+            banksContainer.setAlpha(0f);
+            banksContainer.animate()
+                    .alpha(1f)
+                    .setDuration(150)
+                    .start();
+
+            // стрелка вниз
+            ivMyBanksArrow.animate().rotation(0f).setDuration(150).start();
+
+        } else {
+            // анимация исчезновения
+            banksContainer.animate()
+                    .alpha(0f)
+                    .setDuration(150)
+                    .withEndAction(() -> banksContainer.setVisibility(View.GONE))
+                    .start();
+
+            // стрелка вверх
+            ivMyBanksArrow.animate().rotation(180f).setDuration(150).start();
+        }
+    }
+
     // ---------- ИНИЦИАЛИЗАЦИЯ ВЬЮ ----------
 
     private void initViews() {
         cardAddBank = findViewById(R.id.cardAddBank);
         profileButton = findViewById(R.id.profileButton);
         banksContainer = findViewById(R.id.banksContainer);
+        layoutMyBanksHeader = findViewById(R.id.layoutMyBanksHeader);
+        ivMyBanksArrow = findViewById(R.id.ivMyBanksArrow);
     }
 
     private void setupClicks() {
@@ -101,6 +137,9 @@ public class MainMenuActivity extends BaseActivity {
             Intent intent = new Intent(MainMenuActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
+
+        // Свернуть / развернуть список банков
+        layoutMyBanksHeader.setOnClickListener(v -> toggleBanksList());
     }
 
     // ---------- РАБОТА С SharedPreferences ----------
@@ -311,7 +350,7 @@ public class MainMenuActivity extends BaseActivity {
 
         // Логотипы
         if (bankName.contains("Сбер")) {
-            ivLogo.setImageResource(R.drawable.ic_sber);
+            ivLogo.setImageResource(R.drawable.sber_logo);
         } else if (bankName.contains("Т-Банк") || bankName.contains("ТБанк")) {
             ivLogo.setImageResource(R.drawable.ic_tbank);
         } else {
@@ -333,6 +372,8 @@ public class MainMenuActivity extends BaseActivity {
 
         final float[] downX = new float[1];
         final float[] startTranslationX = new float[1];
+        final float touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+        final boolean[] isDragging = new boolean[1];
 
         cardContent.setOnTouchListener((v, event) -> {
             switch (event.getActionMasked()) {
@@ -340,6 +381,7 @@ public class MainMenuActivity extends BaseActivity {
                 case MotionEvent.ACTION_DOWN:
                     downX[0] = event.getX();
                     startTranslationX[0] = cardContent.getTranslationX();
+                    isDragging[0] = false;
                     v.getParent().requestDisallowInterceptTouchEvent(true);
                     return true;
 
@@ -348,6 +390,11 @@ public class MainMenuActivity extends BaseActivity {
                     float diffX = moveX - downX[0];
 
                     float newTranslation = startTranslationX[0] + diffX;
+
+                    // решаем, это свайп или ещё потенциальный тап
+                    if (!isDragging[0] && Math.abs(diffX) > touchSlop) {
+                        isDragging[0] = true;
+                    }
 
                     // Не вправо
                     if (newTranslation > 0) newTranslation = 0;
@@ -370,6 +417,20 @@ public class MainMenuActivity extends BaseActivity {
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL: {
+
+                    float upX = event.getX();
+                    float dx = upX - downX[0];
+
+                    // если НЕ было реального свайпа и карточка в закрытом положении → считаем это тапом
+                    if (!isDragging[0] && Math.abs(dx) < touchSlop && Math.abs(startTranslationX[0]) < 5f) {
+                        // открыть экран карт этого банка
+                        Intent intent = new Intent(MainMenuActivity.this, BankCardsActivity.class);
+                        intent.putExtra("bank_name", bankName);
+                        startActivity(intent);
+
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        return true;
+                    }
 
                     float current = cardContent.getTranslationX();
                     float openedPart = Math.abs(current) / maxSwipe;
@@ -421,7 +482,6 @@ public class MainMenuActivity extends BaseActivity {
         });
 
         // свайп и тап по красной зоне "Удалить банк"
-        final float touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
         final float[] delDownX = new float[1];
         final float[] delDownY = new float[1];
         final float[] delStartTranslationX = new float[1];

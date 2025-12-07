@@ -153,16 +153,33 @@
                 </androidx.cardview.widget.CardView>
 
                 <!-- Заголовок секции "Мои банки" -->
-                <TextView
-                    android:id="@+id/tvMyBanksTitle"
+                <LinearLayout
+                    android:id="@+id/layoutMyBanksHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Мои банки"
-                    android:textSize="18sp"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black"
-                    android:layout_marginBottom="12dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tvMyBanks"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Мои банки"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+
+                    <ImageView
+                        android:id="@+id/ivMyBanksArrow"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_down" />
+                </LinearLayout>
 
                 <!-- Контейнер для динамически добавляемых карточек банков -->
                 <LinearLayout
