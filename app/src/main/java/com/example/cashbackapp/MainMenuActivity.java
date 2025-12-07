@@ -8,12 +8,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -25,7 +23,6 @@ import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -321,7 +318,6 @@ public class MainMenuActivity extends BaseActivity {
             ivLogo.setImageResource(R.drawable.ic_bank_placeholder);
         }
 
-        // ---------------- Настройки профиля A (упрощённые) ----------------
         final float density = getResources().getDisplayMetrics().density;
 
         final float maxSwipe      = density * 145f;   // Максимальный вылет
