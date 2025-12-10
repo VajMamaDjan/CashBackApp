@@ -68,14 +68,7 @@
                         android:text="Сбер"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="категорий выбрано 0 из 5"
-                        android:textColor="@android:color/white"
-                        android:textSize="13sp" />
+                        android:textSize="20sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -153,16 +146,10 @@
                 android:layout_weight="1"
                 android:text="Мои карты"
                 android:textStyle="bold"
+                android:gravity="center"
                 android:textSize="16sp"
                 android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/tvAddCardTop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="+ Добавить"
-                android:textSize="14sp"
-                android:textColor="@color/accent_purple" />
         </LinearLayout>
 
         <!-- Карточка "Нет карт" -->
@@ -185,7 +172,7 @@
                     android:id="@+id/ivNoCards"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    android:src="@drawable/ic_card_placeholder" />
+                    android:src="@drawable/ic_credit_card" />
 
                 <TextView
                     android:layout_width="wrap_content"

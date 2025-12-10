@@ -94,7 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="24dp"
                     card_view:cardCornerRadius="24dp"
-                    card_view:cardElevation="6dp"
+                    card_view:cardElevation="1dp"
                     android:foreground="?attr/selectableItemBackground">
 
                     <LinearLayout
