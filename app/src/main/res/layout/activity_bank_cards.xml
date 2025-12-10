@@ -146,18 +146,25 @@
                 android:layout_weight="1"
                 android:text="Мои карты"
                 android:textStyle="bold"
-                android:gravity="center"
                 android:textSize="16sp"
                 android:textColor="@color/black" />
 
+            <TextView
+                android:id="@+id/tvAddCardTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+ Добавить"
+                android:textSize="14sp"
+                android:textColor="@color/app_primary" />
         </LinearLayout>
 
-        <!-- Карточка "Нет карт" -->
+        <!-- EMPTY-STATE "Нет карт" -->
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardEmptyState"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             card_view:cardElevation="0dp">
 
             <LinearLayout
@@ -191,8 +198,9 @@
                     android:textSize="13sp"
                     android:textColor="@color/secondary_text" />
 
+                <!-- Кнопка "Добавить карту" (при empty-state) -->
                 <TextView
-                    android:id="@+id/btnAddCard"
+                    android:id="@+id/btnAddCardEmpty"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -204,6 +212,29 @@
                     android:background="@drawable/bg_add_card_button" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <!-- Контейнер для ДОБАВЛЕННЫХ КАРТ (изначально пустой, можно GONE) -->
+        <LinearLayout
+            android:id="@+id/cardsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Кнопка "Добавить карту" СНИЗУ (для случая когда карты уже есть) -->
+        <TextView
+            android:id="@+id/btnAddCardBottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:gravity="center"
+            android:text="Добавить карту"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:background="@drawable/bg_add_card_button"
+            android:visibility="gone" />
 
     </LinearLayout>
 

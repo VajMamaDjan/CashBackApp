@@ -59,6 +59,8 @@
 
         <activity android:name=".BankCardsActivity" />
 
+        <activity android:name=".AddCardActivity" />
+
         <activity
             android:name=".MainMenuActivity"
             android:exported="false" />

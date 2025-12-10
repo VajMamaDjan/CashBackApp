@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Верхняя панель: кнопка назад + название банка -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/btnBackAddCard"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:text="&lt;"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvBankNameSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Банк"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Предпросмотр карты -->
+        <LinearLayout
+            android:id="@+id/previewCard"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@drawable/bg_add_card_button"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/tvPreviewName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="НАЗВАНИЕ КАРТЫ"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvPreviewLast4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="•••• •••• •••• 0000"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <!-- Название карты -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Название карты"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/etCardName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:hint="Например, Зарплатная"
+            android:textSize="14sp" />
+
+        <!-- Последние 4 цифры -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Последние 4 цифры"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/etCardLast4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:hint="1234"
+            android:inputType="number"
+            android:maxLength="4"
+            android:textSize="14sp" />
+
+        <!-- Платёжная система -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Платёжная система"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/btnPsMir"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="МИР"
+                android:textSize="14sp"
+                android:background="@drawable/bg_ps_unselected"
+                android:textColor="@color/black"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/btnPsVisa"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="VISA"
+                android:textSize="14sp"
+                android:background="@drawable/bg_ps_unselected"
+                android:textColor="@color/black"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/btnPsMc"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Mastercard"
+                android:textSize="14sp"
+                android:background="@drawable/bg_ps_unselected"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <!-- Цвет карты -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Цвет карты"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- первая строка цветов -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <View
+                android:id="@+id/colorPurple"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_color_chip"
+                android:layout_marginEnd="8dp"
+                android:tag="#8A3CFF" />
+
+            <View
+                android:id="@+id/colorBlue"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_color_chip"
+                android:layout_marginEnd="8dp"
+                android:tag="#2563EB" />
+
+            <View
+                android:id="@+id/colorGreen"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_color_chip"
+                android:tag="#16A34A" />
+        </LinearLayout>
+
+        <!-- вторая строка цветов -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <View
+                android:id="@+id/colorOrange"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_color_chip"
+                android:layout_marginEnd="8dp"
+                android:tag="#F97316" />
+
+            <View
+                android:id="@+id/colorBlack"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_color_chip"
+                android:layout_marginEnd="8dp"
+                android:tag="#111827" />
+
+            <TextView
+                android:id="@+id/btnPalette"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Палитра"
+                android:textSize="13sp"
+                android:background="@drawable/bg_color_chip"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <!-- Кнопка "Добавить карту" -->
+        <TextView
+            android:id="@+id/btnAddCardConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="Добавить карту"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_add_card_button"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Закругление -->
+    <corners android:radius="18dp" />
+
+    <!-- Светлая фиолетовая подложка (примерно 10–15% opacity) -->
+    <solid android:color="#15A020F0" />
+
+    <!-- Фиолетовая рамка -->
+    <stroke
+        android:width="2dp"
+        android:color="#A020F0" />
+</shape>
