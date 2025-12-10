@@ -10,6 +10,7 @@
     <!-- текст -->
     <color name="secondary_text">#8A8A8E</color> <!-- серый текст -->
     <color name="text_muted">#A0A0A0</color>       <!-- ещё более мягкий -->
+    <color name="text_red">#F22C2C</color>
 
     <!-- фирменные -->
     <color name="app_primary">#2563EB</color>      <!-- ярко-синий -->

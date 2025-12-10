@@ -150,12 +150,12 @@
                 android:textColor="@color/black" />
 
             <TextView
-                android:id="@+id/tvAddCardTop"
+                android:id="@+id/tvDeleteCardTop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+ Добавить"
+                android:text="Очистить все карты"
                 android:textSize="14sp"
-                android:textColor="@color/app_primary" />
+                android:textColor="@color/text_red" />
         </LinearLayout>
 
         <!-- EMPTY-STATE "Нет карт" -->

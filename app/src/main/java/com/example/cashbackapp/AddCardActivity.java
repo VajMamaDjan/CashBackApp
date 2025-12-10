@@ -1,5 +1,6 @@
 package com.example.cashbackapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -10,10 +11,12 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
-import android.app.AlertDialog;
-
 import androidx.annotation.Nullable;
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.ColorEnvelope;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
 public class AddCardActivity extends BaseActivity {
 
@@ -41,9 +44,7 @@ public class AddCardActivity extends BaseActivity {
 
     // Состояние
     private String selectedPaymentSystem = "MIR";
-    private int selectedBaseColor = 0xFF8A3CFF;   // текущий базовый цвет карты
-
-    private AlertDialog paletteDialog;
+    private int selectedBaseColor = Color.parseColor("#8A3CFF");   // текущий базовый цвет карты
 
     @Override
     protected boolean useFullscreenStatusBar() {
@@ -93,14 +94,14 @@ public class AddCardActivity extends BaseActivity {
         // дефолт — МИР
         selectPaymentSystem(btnPsMir, "MIR");
 
-        // ---------- цвета ----------
+        // ---------- цвета (градиентные чипы) ----------
         initColorChips();
 
-        // начальный цвет карты: фиолетовый
-        setCardColorFromBase(Color.parseColor("#8A3CFF"));
+        // стартовый цвет карты: фиолетовый
+        setCardColorFromBase(selectedBaseColor);
 
-        // палитра
-        btnPalette.setOnClickListener(v -> openPaletteDialog());
+        // палитра с R/G/B/Hex
+        btnPalette.setOnClickListener(v -> openColorPickerDialog());
 
         // ---------- обновление предпросмотра при вводе ----------
         TextWatcher previewWatcher = new TextWatcher() {
@@ -168,7 +169,7 @@ public class AddCardActivity extends BaseActivity {
         colorBlack.setOnClickListener(chipClickListener);
     }
 
-    /** Рисуем мини-градиент внутри квадратика */
+    /** Рисуем мини-градиент внутри цветного квадратика */
     private void setupChipGradient(View chip) {
         String hex = (String) chip.getTag();
         if (hex == null) return;
@@ -204,82 +205,34 @@ public class AddCardActivity extends BaseActivity {
         return Color.rgb(r, g, b);
     }
 
-    // ---------- Палитра с готовыми цветами ----------
+    // ---------- Палитра формата R/G/B + Hex ----------
 
-    private void openPaletteDialog() {
-        // Небольшой набор пресетов
-        final int[] palette = new int[]{
-                Color.parseColor("#8A3CFF"),
-                Color.parseColor("#2563EB"),
-                Color.parseColor("#16A34A"),
-                Color.parseColor("#F97316"),
-                Color.parseColor("#111827"),
-                Color.parseColor("#F59E0B"),
-                Color.parseColor("#EC4899"),
-                Color.parseColor("#3B82F6"),
-                Color.parseColor("#22C55E"),
-                Color.parseColor("#F43F5E"),
-                Color.parseColor("#0EA5E9"),
-                Color.parseColor("#A855F7")
-        };
+    private void openColorPickerDialog() {
+        new ColorPickerDialog.Builder(this)
+                .setTitle("Выбор цвета карты")
+                .setPreferenceName("CardColorPicker") // опционально, для запоминания
+                .attachBrightnessSlideBar(true)       // ползунок яркости
+                .attachAlphaSlideBar(false)           // прозрачность нам не нужна
+                .setPositiveButton("Готово", new ColorEnvelopeListener() {
+                    @Override
+                    public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                        int color = envelope.getColor();
 
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        int pad = dpPx(12);
-        root.setPadding(pad, pad, pad, pad);
+                        // ставим цвет карты (градиент как раньше)
+                        setCardColorFromBase(color);
 
-        int perRow = 4;
-        LinearLayout row = null;
-
-        for (int i = 0; i < palette.length; i++) {
-            if (i % perRow == 0) {
-                row = new LinearLayout(this);
-                row.setOrientation(LinearLayout.HORIZONTAL);
-                row.setPadding(0, dpPx(4), 0, dpPx(4));
-                root.addView(row);
-            }
-
-            final int color = palette[i];
-
-            View swatch = new View(this);
-            LinearLayout.LayoutParams lp =
-                    new LinearLayout.LayoutParams(0, dpPx(40), 1f);
-            lp.setMarginStart(dpPx(4));
-            lp.setMarginEnd(dpPx(4));
-            swatch.setLayoutParams(lp);
-
-            GradientDrawable gd = new GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT,
-                    new int[]{darken(color, 0.75f), color});
-            gd.setCornerRadius(dp(12));
-            swatch.setBackground(gd);
-
-            swatch.setOnClickListener(v -> {
-                setCardColorFromBase(color);
-
-                // подсветим саму кнопку "Палитра" этим цветом
-                GradientDrawable bg = new GradientDrawable(
-                        GradientDrawable.Orientation.LEFT_RIGHT,
-                        new int[]{darken(color, 0.75f), color});
-                bg.setCornerRadius(dp(12));
-                btnPalette.setBackground(bg);
-                btnPalette.setTextColor(Color.WHITE);
-
-                if (paletteDialog != null) {
-                    paletteDialog.dismiss();
-                }
-            });
-
-            row.addView(swatch);
-        }
-
-        paletteDialog = new AlertDialog.Builder(this)
-                .setTitle("Выберите цвет карты")
-                .setView(root)
-                .setNegativeButton("Отмена", null)
-                .create();
-
-        paletteDialog.show();
+                        // подсветить кнопку "Палитра" этим же градиентом
+                        int darker = darken(color, 0.75f);
+                        GradientDrawable bg = new GradientDrawable(
+                                GradientDrawable.Orientation.LEFT_RIGHT,
+                                new int[]{darker, color});
+                        bg.setCornerRadius(dp(12));
+                        btnPalette.setBackground(bg);
+                        btnPalette.setTextColor(Color.WHITE);
+                    }
+                })
+                .setNegativeButton("Отмена", (dialogInterface, i) -> dialogInterface.dismiss())
+                .show();
     }
 
     // ==================== ПРЕДПРОСМОТР ТЕКСТА ====================
@@ -330,9 +283,5 @@ public class AddCardActivity extends BaseActivity {
 
     private float dp(float v) {
         return v * getResources().getDisplayMetrics().density;
-    }
-
-    private int dpPx(int dp) {
-        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 }
