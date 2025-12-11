@@ -3,18 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@drawable/bg_bank_card"
-    android:layout_marginTop="12dp"
-    android:layout_marginBottom="4dp">
+    android:padding="0dp"
+    android:background="@android:color/transparent"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp">
 
-    <!-- Вся карта внутри скруглённого контейнера -->
+    <!-- Основной контейнер карты -->
     <RelativeLayout
         android:id="@+id/cardRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="160dp"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@drawable/bg_bank_card">
 
         <!-- Чип слева -->
         <ImageView
@@ -22,10 +23,9 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/ic_card_chip"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="12dp" />
+            android:layout_alignParentStart="true" />
 
-        <!-- Платёжная система (МИР / VISA / Mastercard) -->
+        <!-- Платёжная система (МИР / VISA / MC) -->
         <TextView
             android:id="@+id/tvCardSystem"
             android:layout_width="wrap_content"
@@ -37,53 +37,53 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="8dp" />
 
-        <!-- Подпись: последние цифры -->
+        <!-- НАЗВАНИЕ КАРТЫ — теперь сверху вместо "Последние цифры" -->
         <TextView
-            android:id="@+id/tvLabelLast4"
+            android:id="@+id/tvCardName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ПОСЛЕДНИЕ ЦИФРЫ"
+            android:text="Моя карта"
             android:textColor="@android:color/white"
-            android:textSize="12sp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:layout_below="@id/ivChip"
             android:layout_marginTop="28dp" />
 
-        <!-- Последние 4 цифры карты -->
-        <TextView
-            android:id="@+id/tvCardLast4"
+        <!-- Строка номера -->
+        <LinearLayout
+            android:id="@+id/llCardNumberRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0000"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_alignTop="@id/tvLabelLast4"
-            android:layout_alignParentEnd="true" />
+            android:orientation="horizontal"
+            android:layout_below="@id/tvCardName"
+            android:layout_marginTop="6dp"
+            android:gravity="center_vertical">
 
-        <!-- Подпись: название -->
-        <TextView
-            android:id="@+id/tvLabelName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="НАЗВАНИЕ"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            android:layout_below="@id/tvLabelLast4"
-            android:layout_marginTop="20dp" />
+            <!-- Маска номера -->
+            <TextView
+                android:id="@+id/tvCardMasked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="••••   ••••   ••••"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:letterSpacing="0.1" />
 
-        <!-- Название карты -->
-        <TextView
-            android:id="@+id/tvCardName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="НАЗВАНИЕ КАРТЫ"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_below="@id/tvLabelName"
-            android:layout_marginTop="4dp"
-            android:maxLines="2"
-            android:ellipsize="end" />
+            <!-- Отступ между маской и цифрами -->
+            <View
+                android:layout_width="12dp"
+                android:layout_height="1dp" />
+
+            <!-- Последние 4 цифры -->
+            <TextView
+                android:id="@+id/tvCardLast4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0000"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+        </LinearLayout>
 
     </RelativeLayout>
 

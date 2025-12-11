@@ -112,15 +112,23 @@ public class BankCardsActivity extends BaseActivity {
         tvDeleteCardTop.setOnClickListener(v -> {
             if (cards.isEmpty()) return;
 
-            cards.clear();
-            saveCardsToPrefs();
-            cardsContainer.removeAllViews();
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Удалить все карты?")
+                    .setMessage("Вы действительно хотите удалить все карты этого банка? После удаления невозможно будет восстановить.")
+                    .setPositiveButton("Удалить", (dialog, which) -> {
 
-            cardEmptyState.setVisibility(View.VISIBLE);
-            cardsContainer.setVisibility(View.GONE);
-            btnAddCardBottom.setVisibility(View.GONE);
+                        cards.clear();
+                        saveCardsToPrefs();
+                        cardsContainer.removeAllViews();
 
-            updateStats();
+                        cardEmptyState.setVisibility(View.VISIBLE);
+                        cardsContainer.setVisibility(View.GONE);
+                        btnAddCardBottom.setVisibility(View.GONE);
+
+                        updateStats();
+                    })
+                    .setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss())
+                    .show();
         });
 
         // Загружаем сохранённые карты
