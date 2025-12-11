@@ -230,17 +230,21 @@
         <!-- Кнопка "Добавить карту" СНИЗУ (для случая когда карты уже есть) -->
         <TextView
             android:id="@+id/btnAddCardBottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="10dp"
-            android:layout_marginStart="80dp"
-            android:layout_marginEnd="80dp"
-            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal"
             android:text="Добавить карту"
-            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:textSize="15sp"
             android:textStyle="bold"
+            android:textColor="@android:color/white"
             android:background="@drawable/bg_add_card_button"
-            android:visibility="gone" />
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"/>
 
     </LinearLayout>
 
