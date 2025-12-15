@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Верхний градиентный блок -->
+    <!-- ================= ВЕРХНИЙ БОЛЬШОЙ БЛОК ================= -->
     <LinearLayout
         android:id="@+id/topContainer"
         android:layout_width="match_parent"
@@ -13,7 +14,7 @@
         android:orientation="vertical"
         android:padding="18dp">
 
-        <!-- Верхняя строка: назад + заголовок -->
+        <!-- Верхняя строка -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,38 +41,37 @@
                     android:text="Категории кэшбэка"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"
+                    android:layout_marginBottom="3dp"
                     android:textSize="20sp"/>
 
             </LinearLayout>
-
         </LinearLayout>
 
-        <!-- Карта (твоя существующая item_bank_card) -->
+        <!-- ===== КАРТОЧКА В ХЕДЕРЕ ===== -->
         <RelativeLayout
             android:id="@+id/headerCardRoot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:padding="16dp"
             android:minHeight="110dp">
 
-            <!-- ЧИП слева -->
+            <!-- ЧИП -->
             <ImageView
                 android:id="@+id/ivHeaderChip"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentStart="true"
                 android:layout_marginTop="4dp"
-                android:src="@drawable/ic_card_chip" />
+                android:src="@drawable/ic_card_chip"/>
 
-            <!-- 1-я строка: НАЗВАНИЕ (слева) + •••• 1234 (справа) -->
+            <!-- 1 строка: название + последние 4 -->
             <LinearLayout
                 android:id="@+id/llHeaderTopRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/ivHeaderChip"
                 android:layout_marginStart="14dp"
-                android:layout_marginTop="4dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
@@ -81,23 +81,26 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Моя карта"
+                    android:layout_marginTop="3dp"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:maxLines="1"
-                    android:ellipsize="end" />
+                    android:ellipsize="end"/>
 
                 <TextView
                     android:id="@+id/tvHeaderCardLast4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="•••• 0000"
+
+                    android:layout_marginTop="3dp"
+                    android:text="•••• 4535"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
             </LinearLayout>
 
-            <!-- 2-я строка: "Выбрано 0 из 5..." -->
+            <!-- 2 строка -->
             <TextView
                 android:id="@+id/tvHeaderSelected"
                 android:layout_width="wrap_content"
@@ -108,12 +111,56 @@
                 android:text="Выбрано 0 из 5 категорий"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
-                android:alpha="0.9" />
+                android:alpha="0.9"/>
 
         </RelativeLayout>
-
     </LinearLayout>
 
-    <!-- Дальше твой контент (Добавить категорию и т.д.) -->
-    <!-- ... -->
+    <!-- ================= ДОБАВИТЬ КАТЕГОРИЮ ================= -->
+    <LinearLayout
+        android:id="@+id/btnAddCategory"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:layout_below="@id/topContainer"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="@drawable/bg_dashed_rounded">
+
+        <ImageView
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_plus_round_categories"
+            android:src="@drawable/ic_add"
+            android:padding="10dp"
+            app:tint="#6A35FF" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Добавить категорию"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#111111"/>
+
+            <TextView
+                android:id="@+id/tvPlacesLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Осталось выбрать 5 категорий"
+                android:textSize="13sp"
+                android:textColor="#7A7A7A"/>
+        </LinearLayout>
+    </LinearLayout>
+
 </RelativeLayout>
