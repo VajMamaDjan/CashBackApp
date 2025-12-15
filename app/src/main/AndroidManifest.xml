@@ -61,6 +61,8 @@
 
         <activity android:name=".AddCardActivity" />
 
+        <activity android:name=".CashbackCategoriesActivity" />
+
         <activity
             android:name=".MainMenuActivity"
             android:exported="false" />

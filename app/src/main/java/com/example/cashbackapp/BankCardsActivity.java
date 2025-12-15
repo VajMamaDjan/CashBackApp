@@ -201,6 +201,16 @@ public class BankCardsActivity extends BaseActivity {
         // Градиентный фон как в AddCardActivity
         applyCardGradient(cardRoot, card.color);
 
+        cardRoot.setOnClickListener(v -> {
+            Intent i = new Intent(BankCardsActivity.this, CashbackCategoriesActivity.class);
+            i.putExtra("bank_name", bankName);
+            i.putExtra("card_name", card.name);
+            i.putExtra("card_last4", card.last4);
+            i.putExtra("card_ps", card.ps);
+            i.putExtra("card_color", card.color); // важно для такого же градиента
+            startActivity(i);
+        });
+
         cardsContainer.addView(itemView);
     }
 
