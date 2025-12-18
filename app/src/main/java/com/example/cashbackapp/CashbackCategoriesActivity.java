@@ -17,6 +17,13 @@ public class CashbackCategoriesActivity extends BaseActivity {
     private String ps;
     private int cardColor;
 
+    // NEW
+    private int maxCategories;          // лимит категорий для этой карты
+    private String cashbackUnit;        // "RUB" или "MILES"
+
+    // Заглушка: пока выбранных категорий нет
+    private int selectedCount = 0;
+
     @Override
     protected boolean useFullscreenStatusBar() {
         return false;
@@ -37,49 +44,73 @@ public class CashbackCategoriesActivity extends BaseActivity {
         ps = i.getStringExtra("card_ps");
         cardColor = i.getIntExtra("card_color", Color.parseColor("#8A3CFF"));
 
+        cashbackUnit = i.getStringExtra("card_cashback_unit");
+        if (cashbackUnit == null) cashbackUnit = "RUB";
+        if (maxCategories <= 0) maxCategories = 5;
+
         // ---------- шапка ----------
         View topContainer = findViewById(R.id.topContainer);
         applyHeaderGradient(topContainer, cardColor);
 
+        // Если захочешь доп. строку, можно будет вывести bankName/ps/unit, но XML ты фиксировал как эталонный.
+        // Поэтому здесь ничего лишнего не трогаем.
+
+        // ---------- карточка в хедере (твоя структура headerCardRoot) ----------
         View headerCardRoot = findViewById(R.id.headerCardRoot);
         TextView tvHeaderCardName = findViewById(R.id.tvHeaderCardName);
         TextView tvHeaderCardLast4 = findViewById(R.id.tvHeaderCardLast4);
+        TextView tvHeaderCashbackUnit = findViewById(R.id.tvHeaderCashbackUnit);
         TextView tvHeaderSelected = findViewById(R.id.tvHeaderSelected);
 
-        tvHeaderCardName.setText(cardName);
-        tvHeaderCardLast4.setText("•••• " + last4);
-        tvHeaderSelected.setText("Выбрано 0 из 5 категорий");
+        tvHeaderCardName.setText(cardName != null ? cardName : "Моя карта");
+        tvHeaderCardLast4.setText("•••• " + (last4 != null ? last4 : "0000"));
 
-// тот же градиент, что у карты (стиль сохраняем)
+        if ("MILES".equalsIgnoreCase(cashbackUnit)) {
+            tvHeaderCashbackUnit.setText("МИЛИ");
+            tvHeaderCashbackUnit.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.ic_plane, 0, 0, 0
+            );
+            tvHeaderCashbackUnit.setCompoundDrawablePadding((int) dp(4));
+        } else {
+            tvHeaderCashbackUnit.setCompoundDrawables(null, null, null, null);
+            tvHeaderCashbackUnit.setText("РУБ");
+        }
+
         applyCardGradient(headerCardRoot, cardColor);
 
+        // ---------- блок "Добавить категорию" ----------
+        TextView tvPlacesLeft = findViewById(R.id.tvPlacesLeft);
 
-        // ---------- счётчик категорий (пока заглушка) ----------
-        tvHeaderSelected.setText("Выбрано 0 из 5 категорий");
+        // Можно красиво подсказать единицы возврата (рубли/мили) — не меняя разметку:
+        // добавим к подписи снизу (если хочешь — уберу)
+        // tvPlacesLeft.setText("Осталось выбрать " + (maxCategories - selectedCount) + " категорий • " + unitLabel());
+
+        updateCounters(tvHeaderSelected, tvPlacesLeft);
+
+        findViewById(R.id.btnAddCategory).setOnClickListener(v -> {
+            // Заглушка: имитируем добавление категории, чтобы проверить лимит/тексты
+            if (selectedCount >= maxCategories) return;
+            selectedCount++;
+            updateCounters(tvHeaderSelected, tvPlacesLeft);
+        });
+    }
+
+    private void updateCounters(TextView tvHeaderSelected, TextView tvPlacesLeft) {
+        tvHeaderSelected.setText("Выбрано " + selectedCount + " из " + maxCategories + " категорий");
+        tvPlacesLeft.setText("Осталось выбрать " + (maxCategories - selectedCount) + " категорий");
+        // Если хочешь всегда показывать единицу возврата:
+        // tvPlacesLeft.setText("Осталось выбрать " + (maxCategories - selectedCount) + " категорий • " + unitLabel());
+    }
+
+    private String unitLabel() {
+        return "MILES".equalsIgnoreCase(cashbackUnit) ? "милями" : "рублями";
     }
 
     // ======================================================
-    // helpers
+    // Gradient helpers (тот же стиль, что и в твоих экранах)
     // ======================================================
 
-    private String mapPsLabel(String psCode) {
-        if (psCode == null) return "";
-        psCode = psCode.toUpperCase();
-
-        switch (psCode) {
-            case "MIR":
-                return "МИР";
-            case "VISA":
-                return "VISA";
-            case "MC":
-            case "MASTERCARD":
-                return "Mastercard";
-            default:
-                return "";
-        }
-    }
-
-    /** Тот же стиль, что у карты, но темнее — для шапки */
+    /** Фон шапки = тот же стиль, что у карты, но темнее */
     private void applyHeaderGradient(View view, int baseColor) {
         int c1 = darken(baseColor, 0.35f);
         int c2 = darken(baseColor, 0.55f);
@@ -100,7 +131,7 @@ public class CashbackCategoriesActivity extends BaseActivity {
         view.setBackground(gd);
     }
 
-    /** Абсолютно такой же градиент, как у карточки */
+    /** Градиент карты как в BankCardsActivity */
     private void applyCardGradient(View view, int baseColor) {
         int darker = darken(baseColor, 0.75f);
 

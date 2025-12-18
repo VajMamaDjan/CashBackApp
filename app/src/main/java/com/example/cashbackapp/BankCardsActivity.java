@@ -22,36 +22,38 @@ import java.util.List;
 
 public class BankCardsActivity extends BaseActivity {
 
-    // Шапка
+    // ---------- ШАПКА ----------
     private ImageView ivBankLogoHeader;
     private TextView tvBankNameHeader;
     private TextView tvTotalCards;
     private TextView tvActiveCards;
 
-    // "Мои карты"
+    // ---------- СПИСОК КАРТ ----------
     private View cardEmptyState;
     private LinearLayout cardsContainer;
-    private TextView tvDeleteCardTop;    // "Очистить все карты"
-    private TextView btnAddCardEmpty;    // кнопка внутри empty-state
-    private TextView btnAddCardBottom;   // нижняя кнопка "Добавить карту"
+    private TextView tvDeleteCardTop;
+    private TextView btnAddCardEmpty;
+    private TextView btnAddCardBottom;
 
     private String bankName;
     private static final int REQ_ADD_CARD = 1001;
 
     private SharedPreferences prefs;
 
-    // Модель карты
+    // ---------- МОДЕЛЬ КАРТЫ ----------
     private static class CardData {
         String name;
         String last4;
-        String ps;     // MIR / VISA / MC
-        int color;     // базовый цвет (без затемнения)
+        String ps;
+        int color;
+        String cashbackUnit; // "RUB" | "MILES"
 
-        CardData(String name, String last4, String ps, int color) {
+        CardData(String name, String last4, String ps, int color, String cashbackUnit) {
             this.name = name;
             this.last4 = last4;
             this.ps = ps;
             this.color = color;
+            this.cashbackUnit = cashbackUnit;
         }
     }
 
@@ -90,54 +92,46 @@ public class BankCardsActivity extends BaseActivity {
             ivBankLogoHeader.setImageResource(R.drawable.ic_bank_placeholder);
         }
 
-        // ---------- "МОИ КАРТЫ" ----------
+        // ---------- СПИСОК ----------
         cardEmptyState = findViewById(R.id.cardEmptyState);
         cardsContainer = findViewById(R.id.cardsContainer);
         tvDeleteCardTop = findViewById(R.id.tvDeleteCardTop);
         btnAddCardEmpty = findViewById(R.id.btnAddCardEmpty);
         btnAddCardBottom = findViewById(R.id.btnAddCardBottom);
 
-        // обработчик "Добавить карту"
         View.OnClickListener addCardClickListener = v -> {
-            Intent i = new Intent(BankCardsActivity.this, AddCardActivity.class);
+            Intent i = new Intent(this, AddCardActivity.class);
             i.putExtra("bank_name", bankName);
             startActivityForResult(i, REQ_ADD_CARD);
         };
 
-        // кнопки "Добавить карту"
         btnAddCardEmpty.setOnClickListener(addCardClickListener);
         btnAddCardBottom.setOnClickListener(addCardClickListener);
 
-        // "Очистить все карты"
         tvDeleteCardTop.setOnClickListener(v -> {
             if (cards.isEmpty()) return;
 
             new android.app.AlertDialog.Builder(this)
                     .setTitle("Удалить все карты?")
-                    .setMessage("Вы действительно хотите удалить все карты этого банка? После удаления невозможно будет восстановить.")
-                    .setPositiveButton("Удалить", (dialog, which) -> {
-
+                    .setMessage("Вы действительно хотите удалить все карты этого банка?")
+                    .setPositiveButton("Удалить", (d, w) -> {
                         cards.clear();
                         saveCardsToPrefs();
                         cardsContainer.removeAllViews();
-
                         cardEmptyState.setVisibility(View.VISIBLE);
                         cardsContainer.setVisibility(View.GONE);
                         btnAddCardBottom.setVisibility(View.GONE);
-
                         updateStats();
                     })
-                    .setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton("Отмена", null)
                     .show();
         });
 
-        // Загружаем сохранённые карты
         loadCardsFromPrefs();
         updateStats();
     }
 
-    // ---------- РЕЗУЛЬТАТ С AddCardActivity ----------
-
+    // ---------- RESULT ----------
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -148,98 +142,97 @@ public class BankCardsActivity extends BaseActivity {
             String ps = data.getStringExtra("card_ps");
             int color = data.getIntExtra("card_color", Color.parseColor("#8A3CFF"));
 
-            addCardFromForm(cardName, last4, ps, color);
+            String cashbackUnit = data.getStringExtra("card_cashback_unit");
+            if (cashbackUnit == null) cashbackUnit = "RUB";
+
+            addCardFromForm(cardName, last4, ps, color, cashbackUnit);
         }
     }
 
-    private void addCardFromForm(String cardName, String last4, String psCode, int color) {
-        if (cardName == null || cardName.trim().isEmpty()) {
-            cardName = "Моя карта";
-        }
-        if (last4 == null) last4 = "0000";
+    private void addCardFromForm(String cardName, String last4, String psCode, int color, String cashbackUnit)
+    {
 
-        CardData card = new CardData(cardName, last4, psCode, color);
+        if (TextUtils.isEmpty(cardName)) cardName = "Моя карта";
+        if (last4 == null) last4 = "0000";
+        if (cashbackUnit == null) cashbackUnit = "RUB";
+
+        CardData card = new CardData(cardName, last4, psCode, color, cashbackUnit);
         cards.add(card);
 
         ensureListVisible();
         addCardView(card);
-
         updateStats();
         saveCardsToPrefs();
     }
 
-    // ---------- ОТОБРАЖЕНИЕ / СОСТОЯНИЯ ----------
-
+    // ---------- UI ----------
     private void ensureListVisible() {
-        if (cardsContainer.getVisibility() != View.VISIBLE) {
-            cardEmptyState.setVisibility(View.GONE);
-            cardsContainer.setVisibility(View.VISIBLE);
-            btnAddCardBottom.setVisibility(View.VISIBLE);
-        }
+        cardEmptyState.setVisibility(View.GONE);
+        cardsContainer.setVisibility(View.VISIBLE);
+        btnAddCardBottom.setVisibility(View.VISIBLE);
     }
 
-    /**
-     * Создаём view для одной карты и добавляем в контейнер
-     */
     private void addCardView(CardData card) {
         View itemView = getLayoutInflater().inflate(R.layout.item_bank_card, cardsContainer, false);
 
         View cardRoot = itemView.findViewById(R.id.cardRoot);
+        TextView tvCashbackUnit = itemView.findViewById(R.id.tvCashbackUnit);
         TextView tvCardName = itemView.findViewById(R.id.tvCardName);
         TextView tvCardLast4 = itemView.findViewById(R.id.tvCardLast4);
         TextView tvCardSystem = itemView.findViewById(R.id.tvCardSystem);
 
-        // Название
         tvCardName.setText(card.name);
-
-        // Последние цифры
         tvCardLast4.setText(card.last4);
-
-        // Платёжная система
         tvCardSystem.setText(mapPsLabel(card.ps));
 
-        // Градиентный фон как в AddCardActivity
+        if ("MILES".equalsIgnoreCase(card.cashbackUnit)) {
+            // самолёт
+            tvCashbackUnit.setText("МИЛИ");
+            tvCashbackUnit.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.ic_plane, 0, 0, 0
+            );
+        } else {
+            // рубли
+            tvCashbackUnit.setCompoundDrawables(null, null, null, null);
+            tvCashbackUnit.setText("РУБ");
+        }
+
         applyCardGradient(cardRoot, card.color);
 
         cardRoot.setOnClickListener(v -> {
-            Intent i = new Intent(BankCardsActivity.this, CashbackCategoriesActivity.class);
+            Intent i = new Intent(this, CashbackCategoriesActivity.class);
             i.putExtra("bank_name", bankName);
             i.putExtra("card_name", card.name);
             i.putExtra("card_last4", card.last4);
             i.putExtra("card_ps", card.ps);
-            i.putExtra("card_color", card.color); // важно для такого же градиента
+            i.putExtra("card_color", card.color);
+            i.putExtra("card_cashback_unit", card.cashbackUnit);
             startActivity(i);
         });
 
         cardsContainer.addView(itemView);
     }
 
-    /**
-     * Преобразуем код платёжной системы в надпись на карте
-     */
+    private String mapCashbackUnit(String unit) {
+        if (unit == null) return "RUB";
+        if ("MILES".equalsIgnoreCase(unit)) return "R.drawable.ic_tbank";
+        return "рублями";
+    }
+
     private String mapPsLabel(String psCode) {
         if (psCode == null) return "";
         psCode = psCode.toUpperCase();
-
         switch (psCode) {
-            case "MIR":
-                return "МИР";
-            case "VISA":
-                return "VISA";
+            case "MIR": return "МИР";
+            case "VISA": return "VISA";
             case "MC":
-            case "MASTERCARD":
-                return "Mastercard";
-            default:
-                return "";
+            case "MASTERCARD": return "Mastercard";
+            default: return "";
         }
     }
 
-    /**
-     * Устанавливаем градиентный фон на карту
-     */
     private void applyCardGradient(View view, int baseColor) {
         int darker = darken(baseColor, 0.75f);
-
         GradientDrawable gd = new GradientDrawable(
                 GradientDrawable.Orientation.BL_TR,
                 new int[]{darker, baseColor});
@@ -248,10 +241,10 @@ public class BankCardsActivity extends BaseActivity {
     }
 
     private int darken(int color, float factor) {
-        int r = (int) (Color.red(color) * factor);
-        int g = (int) (Color.green(color) * factor);
-        int b = (int) (Color.blue(color) * factor);
-        return Color.rgb(r, g, b);
+        return Color.rgb(
+                (int) (Color.red(color) * factor),
+                (int) (Color.green(color) * factor),
+                (int) (Color.blue(color) * factor));
     }
 
     private float dp(float v) {
@@ -261,13 +254,11 @@ public class BankCardsActivity extends BaseActivity {
     private void updateStats() {
         int count = cards.size();
         tvTotalCards.setText(String.valueOf(count));
-        tvActiveCards.setText(String.valueOf(count)); // пока все считаем активными
+        tvActiveCards.setText(String.valueOf(count));
     }
 
-    // ---------- PREFERENCES: СОХРАНЕНИЕ / ЗАГРУЗКА ----------
-
+    // ---------- PREFS ----------
     private String getPrefsKeyForBank() {
-        // отдельный ключ для каждого банка
         return "cards_for_" + bankName;
     }
 
@@ -280,11 +271,10 @@ public class BankCardsActivity extends BaseActivity {
                 obj.put("last4", c.last4);
                 obj.put("ps", c.ps);
                 obj.put("color", c.color);
+                obj.put("cashbackUnit", c.cashbackUnit);
                 arr.put(obj);
             }
-            prefs.edit()
-                    .putString(getPrefsKeyForBank(), arr.toString())
-                    .apply();
+            prefs.edit().putString(getPrefsKeyForBank(), arr.toString()).apply();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -303,27 +293,26 @@ public class BankCardsActivity extends BaseActivity {
             JSONArray arr = new JSONArray(json);
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
                 String name = obj.optString("name", "Моя карта");
                 String last4 = obj.optString("last4", "0000");
                 String ps = obj.optString("ps", "");
                 int color = obj.optInt("color", Color.parseColor("#8A3CFF"));
+                String cashbackUnit = obj.optString("cashbackUnit", "RUB");
 
-                CardData card = new CardData(name, last4, ps, color);
-                cards.add(card);
+                cards.add(new CardData(
+                        name,
+                        last4,
+                        ps,
+                        color,
+                        cashbackUnit
+                ));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if (!cards.isEmpty()) {
-            ensureListVisible();
-            for (CardData c : cards) {
-                addCardView(c);
-            }
-        } else {
-            cardEmptyState.setVisibility(View.VISIBLE);
-            cardsContainer.setVisibility(View.GONE);
-            btnAddCardBottom.setVisibility(View.GONE);
-        }
+        ensureListVisible();
+        for (CardData c : cards) addCardView(c);
     }
 }

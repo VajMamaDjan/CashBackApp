@@ -42,6 +42,10 @@ public class AddCardActivity extends BaseActivity {
     // Кнопка "Добавить карту"
     private TextView btnAddCard;
 
+    private android.widget.RadioGroup rgCashbackUnit;
+    private android.widget.RadioButton rbUnitRub, rbUnitMiles;
+    private String selectedCashbackUnit = "RUB"; // "RUB" или "MILES"
+
     // Состояние
     private String selectedPaymentSystem = "MIR";
     private int selectedBaseColor = Color.parseColor("#8A3CFF");   // текущий базовый цвет карты
@@ -77,6 +81,19 @@ public class AddCardActivity extends BaseActivity {
         btnPalette       = findViewById(R.id.btnPalette);
 
         btnAddCard       = findViewById(R.id.btnAddCardConfirm);
+
+        rgCashbackUnit = findViewById(R.id.rgCashbackUnit);
+        rbUnitRub = findViewById(R.id.rbUnitRub);
+        rbUnitMiles = findViewById(R.id.rbUnitMiles);
+
+        // выбор рубли/мили
+        rgCashbackUnit.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbUnitMiles) {
+                selectedCashbackUnit = "MILES";
+            } else {
+                selectedCashbackUnit = "RUB";
+            }
+        });
 
         // Название банка под заголовком
         String bankName = getIntent().getStringExtra("bank_name");
@@ -271,6 +288,7 @@ public class AddCardActivity extends BaseActivity {
 
         Intent data = new Intent();
         data.putExtra("card_name", name);
+        data.putExtra("card_cashback_unit", selectedCashbackUnit);
         data.putExtra("card_last4", last4);
         data.putExtra("card_ps", selectedPaymentSystem);
         data.putExtra("card_color", selectedBaseColor);
