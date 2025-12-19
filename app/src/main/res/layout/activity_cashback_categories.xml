@@ -171,10 +171,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Осталось выбрать 5 категорий"
+                android:text="Нажмите, чтобы добавить категорию"
                 android:textSize="13sp"
                 android:textColor="#7A7A7A"/>
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Контейнер выбранных категорий (плашки) -->
+    <LinearLayout
+        android:id="@+id/selectedChipsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnAddCategory"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical" />
 
 </RelativeLayout>

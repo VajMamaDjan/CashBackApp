@@ -281,7 +281,13 @@ public class BankCardsActivity extends BaseActivity {
     }
 
     private void loadCardsFromPrefs() {
+        // 1) сброс UI и списка
+        cards.clear();
+        cardsContainer.removeAllViews();
+
         String json = prefs.getString(getPrefsKeyForBank(), null);
+
+        // 2) если нет данных — показываем empty-state
         if (json == null || json.isEmpty()) {
             cardEmptyState.setVisibility(View.VISIBLE);
             cardsContainer.setVisibility(View.GONE);
@@ -289,6 +295,7 @@ public class BankCardsActivity extends BaseActivity {
             return;
         }
 
+        // 3) парсим
         try {
             JSONArray arr = new JSONArray(json);
             for (int i = 0; i < arr.length(); i++) {
@@ -300,19 +307,26 @@ public class BankCardsActivity extends BaseActivity {
                 int color = obj.optInt("color", Color.parseColor("#8A3CFF"));
                 String cashbackUnit = obj.optString("cashbackUnit", "RUB");
 
-                cards.add(new CardData(
-                        name,
-                        last4,
-                        ps,
-                        color,
-                        cashbackUnit
-                ));
+                cards.add(new CardData(name, last4, ps, color, cashbackUnit));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        ensureListVisible();
-        for (CardData c : cards) addCardView(c);
+        // 4) ВАЖНО: показываем правильное состояние
+        if (cards.isEmpty()) {
+            cardEmptyState.setVisibility(View.VISIBLE);
+            cardsContainer.setVisibility(View.GONE);
+            btnAddCardBottom.setVisibility(View.GONE);
+        } else {
+            ensureListVisible();
+            for (CardData c : cards) addCardView(c);
+        }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadCardsFromPrefs();
+        updateStats();
     }
 }

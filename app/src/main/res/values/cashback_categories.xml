@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cashback_categories">
+        <item>Автозапчасти</item>
+        <item>Автоуслуги</item>
+        <item>АЗС</item>
+        <item>Аксессуары</item>
+        <item>Активный отдых</item>
+        <item>Алкоголь</item>
+        <item>Аптеки</item>
+        <item>Аренда авто</item>
+        <item>Детские товары</item>
+        <item>Дом и ремонт</item>
+        <item>Здоровье</item>
+        <item>Зоотовары</item>
+        <item>Кафе и рестораны</item>
+        <item>Книги и канцтовары</item>
+        <item>Красота</item>
+        <item>Культура и искусство</item>
+        <item>Маркетплейсы</item>
+        <item>Медицинские услуги</item>
+        <item>Образование</item>
+        <item>Одежда и обувь</item>
+        <item>Отели</item>
+        <item>Подарки и сувениры</item>
+        <item>Подписки</item>
+        <item>Продукты</item>
+        <item>Путешествия</item>
+        <item>Развлечения</item>
+        <item>Рестораны</item>
+        <item>Связь</item>
+        <item>Спорт</item>
+        <item>Супермаркеты</item>
+        <item>Такси</item>
+        <item>Товары для дома</item>
+        <item>Транспорт</item>
+        <item>Фастфуд</item>
+        <item>Цветы</item>
+        <item>Электроника</item>
+        <item>Ювелирные изделия</item>
+        <item>Ж/д билеты</item>
+        <item>Авиабилеты</item>
+        <item>Каршеринг</item>
+        <item>Кино</item>
+        <item>Косметика</item>
+        <item>Кофейни</item>
+        <item>Лекарства</item>
+        <item>Магазины одежды</item>
+        <item>Мебель</item>
+        <item>Пиццерии</item>
+        <item>Такси</item>
+        <item>Театры</item>
+        <item>Фудкорты</item>
+        <item>Цифровые сервисы</item>
+        <item>Шеринговые сервисы</item>
+        <item>Доставка еды</item>
+        <item>Доставка продуктов</item>
+        <item>Игры</item>
+        <item>Покупки</item>
+        <item>Платные дороги</item>
+        <item>Фитнес</item>
+        <item>Страхование</item>
+        <item>Бытовые услуги</item>
+        <item>Украшения и бижутерия</item>
+        <item>Цифровой контент</item>
+        <item>Театры и кино</item>
+        <item>Услуги ЖКХ</item>
+        <item>Искусство</item>
+        <item>Продажа авто</item>
+        <item>Услуги связи</item>
+        <item>Все покупки</item>
+        <item>Оплата ЖКУ в ВТБ-Онлайн</item>
+        <item>Оплата сотовой связи</item>
+    </string-array>
+</resources>

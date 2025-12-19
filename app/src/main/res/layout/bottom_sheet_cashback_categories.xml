@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Выберите категорию"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#111111" />
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:padding="8dp"
+            android:src="@drawable/ic_close"
+            app:tint="#7A7A7A" />
+    </RelativeLayout>
+
+    <!-- Search -->
+    <LinearLayout
+        android:id="@+id/searchContainer"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="@drawable/bg_search_field">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_search"
+            app:tint="#7A7A7A" />
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:background="@android:color/transparent"
+            android:hint="Поиск категории"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:imeOptions="actionSearch"
+            android:inputType="text"/>
+
+        <ImageView
+            android:id="@+id/btnClearSearch"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_close"
+            android:visibility="gone"
+            app:tint="#7A7A7A" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <!-- Grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCategories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"/>
+</LinearLayout>
