@@ -8,4 +8,8 @@
     <style name="BottomNavTextAppearance" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:paddingTop">6dp</item> <!-- тут регулируешь расстояние -->
     </style>
+
+    <style name="WhitePopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_menu_white</item>
+    </style>
 </resources>

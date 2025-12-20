@@ -1,4 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/action_edit"
+        android:title="Редактировать"
+        android:icon="@drawable/ic_edit_24" />
+
+    <item
+        android:id="@+id/action_set_period"
+        android:title="Указать период"
+        android:icon="@drawable/ic_calendar_24" />
+
+    <item
+        android:id="@+id/action_copy"
+        android:title="Копировать"
+        android:icon="@drawable/ic_copy_24" />
+
+    <item
+        android:id="@+id/action_limit"
+        android:title="Лимит"
+        android:icon="@drawable/ic_limit_24" />
+
+    <item
+        android:id="@+id/action_delete"
+        android:title="Удалить"
+        android:icon="@drawable/ic_delete_24" />
+
 </menu>

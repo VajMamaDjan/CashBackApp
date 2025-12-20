@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CashbackApp</string>
+    <string name="chip_menu">Меню категории</string>
 </resources>

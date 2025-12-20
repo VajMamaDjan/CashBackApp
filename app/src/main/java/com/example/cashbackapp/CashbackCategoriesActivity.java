@@ -1,16 +1,21 @@
 package com.example.cashbackapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.view.Gravity;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -110,7 +115,6 @@ public class CashbackCategoriesActivity extends BaseActivity {
         tvHeaderSelected = findViewById(R.id.tvHeaderSelected);
         tvPlacesLeft = findViewById(R.id.tvPlacesLeft);
 
-        // без лимита
         tvPlacesLeft.setText("Выберите категории кэшбэка");
 
         // restore saved chips
@@ -195,25 +199,31 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
         boolean isEdit = selectedCategories.containsKey(categoryName);
 
-        new android.app.AlertDialog.Builder(this)
+        // лимит: максимум 5 категорий
+        if (!isEdit && selectedCategories.size() >= 5) {
+            android.widget.Toast.makeText(this, "Можно выбрать максимум 5 категорий", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
                 .setTitle(categoryName)
                 .setMessage(isEdit ? "Измените % кэшбэка" : "Укажите % кэшбэка для этой категории")
                 .setView(et)
                 .setPositiveButton(isEdit ? "Сохранить" : "Добавить", (d, w) -> {
                     String raw = et.getText().toString().trim().replace(",", ".");
                     if (raw.isEmpty()) {
-                        android.widget.Toast.makeText(this, "Введите процент", android.widget.Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Введите процент", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     try {
                         double val = Double.parseDouble(raw);
                         if (val <= 0 || val > 100) {
-                            android.widget.Toast.makeText(this, "Процент должен быть от 0 до 100", android.widget.Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Процент должен быть от 0 до 100", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     } catch (Exception e) {
-                        android.widget.Toast.makeText(this, "Некорректное значение", android.widget.Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Некорректное значение", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -223,12 +233,6 @@ public class CashbackCategoriesActivity extends BaseActivity {
                     saveSelectedCategoriesToPrefs();
                 })
                 .setNegativeButton("Отмена", null)
-                .setNeutralButton(isEdit ? "Удалить" : null, isEdit ? (d, w) -> {
-                    selectedCategories.remove(categoryName);
-                    refreshChipsUI();
-                    updateSelectedCount();
-                    saveSelectedCategoriesToPrefs();
-                } : null)
                 .show();
     }
 
@@ -248,31 +252,86 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
         TextView tvName = chip.findViewById(R.id.tvChipName);
         TextView tvPercent = chip.findViewById(R.id.tvChipPercent);
-        ImageView btnRemove = chip.findViewById(R.id.btnRemoveChip);
+        ImageButton btnMenu = chip.findViewById(R.id.btnChipMenu);
 
         tvName.setText(name);
         tvPercent.setText(percent + "%");
 
-        // edit on tap
+        // edit on tap (оставил как было — удобно)
         chip.setOnClickListener(v -> {
             String current = selectedCategories.get(name);
             askCashbackPercent(name, current);
         });
 
-        // remove
-        btnRemove.setOnClickListener(v -> {
-            selectedCategories.remove(name);
-            selectedChipsContainer.removeView(chip);
-            updateSelectedCount();
-            saveSelectedCategoriesToPrefs();
-        });
+        // menu (⋮)
+        btnMenu.setOnClickListener(v -> showChipContextMenu(v, name, chip));
 
         selectedChipsContainer.addView(chip);
     }
 
+    // =========================================================
+    // Chip context menu (⋮)
+    // =========================================================
+
+    private void forceShowPopupMenuIcons(PopupMenu popup) {
+        try {
+            java.lang.reflect.Field f = PopupMenu.class.getDeclaredField("mPopup");
+            f.setAccessible(true);
+            Object helper = f.get(popup);
+            Class<?> cls = Class.forName(helper.getClass().getName());
+            java.lang.reflect.Method m = cls.getDeclaredMethod("setForceShowIcon", boolean.class);
+            m.setAccessible(true);
+            m.invoke(helper, true);
+        } catch (Exception ignored) {}
+    }
+
+    private void showChipContextMenu(View anchor, String categoryName, View chipView) {
+        PopupMenu popup = new PopupMenu(this, anchor, Gravity.END, 0, R.style.WhitePopupMenu);
+        popup.getMenuInflater().inflate(R.menu.menu_selected_category_chip, popup.getMenu());
+
+        forceShowPopupMenuIcons(popup);
+
+        popup.setOnMenuItemClickListener(item -> handleChipMenuItem(item, categoryName, chipView));
+        popup.show();
+    }
+
+    private boolean handleChipMenuItem(MenuItem item, String categoryName, View chipView) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_edit) {
+            String current = selectedCategories.get(categoryName);
+            askCashbackPercent(categoryName, current);
+            return true;
+        }
+
+        if (id == R.id.action_delete) {
+            selectedCategories.remove(categoryName);
+            selectedChipsContainer.removeView(chipView);
+            updateSelectedCount();
+            saveSelectedCategoriesToPrefs();
+            return true;
+        }
+
+        // пока заглушки — чтобы не падало
+        if (id == R.id.action_set_period) {
+            Toast.makeText(this, "Указать период — в разработке", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        if (id == R.id.action_copy) {
+            Toast.makeText(this, "Копировать — в разработке", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        if (id == R.id.action_limit) {
+            Toast.makeText(this, "Лимит — в разработке", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        return false;
+    }
+
     private void updateSelectedCount() {
         if (tvHeaderSelected == null) return;
-        tvHeaderSelected.setText("Выбрано " + selectedCategories.size() + " категорий");
+        tvHeaderSelected.setText("Выбрано " + selectedCategories.size() + " из 5 категорий");
     }
 
     // =========================================================
