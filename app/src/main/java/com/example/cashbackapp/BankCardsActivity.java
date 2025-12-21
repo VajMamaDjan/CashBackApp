@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BankCardsActivity extends BaseActivity {
 
@@ -42,13 +43,15 @@ public class BankCardsActivity extends BaseActivity {
 
     // ---------- МОДЕЛЬ КАРТЫ ----------
     private static class CardData {
+        String id;            // ✅ Уникальный ID карты
         String name;
         String last4;
         String ps;
         int color;
-        String cashbackUnit; // "RUB" | "MILES"
+        String cashbackUnit;  // "RUB" | "MILES"
 
-        CardData(String name, String last4, String ps, int color, String cashbackUnit) {
+        CardData(String id, String name, String last4, String ps, int color, String cashbackUnit) {
+            this.id = id;
             this.name = name;
             this.last4 = last4;
             this.ps = ps;
@@ -149,14 +152,15 @@ public class BankCardsActivity extends BaseActivity {
         }
     }
 
-    private void addCardFromForm(String cardName, String last4, String psCode, int color, String cashbackUnit)
-    {
-
+    private void addCardFromForm(String cardName, String last4, String psCode, int color, String cashbackUnit) {
         if (TextUtils.isEmpty(cardName)) cardName = "Моя карта";
         if (last4 == null) last4 = "0000";
         if (cashbackUnit == null) cashbackUnit = "RUB";
 
-        CardData card = new CardData(cardName, last4, psCode, color, cashbackUnit);
+        // ✅ генерируем уникальный card_id
+        String cardId = UUID.randomUUID().toString();
+
+        CardData card = new CardData(cardId, cardName, last4, psCode, color, cashbackUnit);
         cards.add(card);
 
         ensureListVisible();
@@ -186,13 +190,11 @@ public class BankCardsActivity extends BaseActivity {
         tvCardSystem.setText(mapPsLabel(card.ps));
 
         if ("MILES".equalsIgnoreCase(card.cashbackUnit)) {
-            // самолёт
             tvCashbackUnit.setText("МИЛИ");
             tvCashbackUnit.setCompoundDrawablesWithIntrinsicBounds(
                     R.drawable.ic_plane, 0, 0, 0
             );
         } else {
-            // рубли
             tvCashbackUnit.setCompoundDrawables(null, null, null, null);
             tvCashbackUnit.setText("РУБ");
         }
@@ -202,6 +204,7 @@ public class BankCardsActivity extends BaseActivity {
         cardRoot.setOnClickListener(v -> {
             Intent i = new Intent(this, CashbackCategoriesActivity.class);
             i.putExtra("bank_name", bankName);
+            i.putExtra("card_id", card.id);                  // ✅ важно
             i.putExtra("card_name", card.name);
             i.putExtra("card_last4", card.last4);
             i.putExtra("card_ps", card.ps);
@@ -211,12 +214,6 @@ public class BankCardsActivity extends BaseActivity {
         });
 
         cardsContainer.addView(itemView);
-    }
-
-    private String mapCashbackUnit(String unit) {
-        if (unit == null) return "RUB";
-        if ("MILES".equalsIgnoreCase(unit)) return "R.drawable.ic_tbank";
-        return "рублями";
     }
 
     private String mapPsLabel(String psCode) {
@@ -267,6 +264,7 @@ public class BankCardsActivity extends BaseActivity {
         try {
             for (CardData c : cards) {
                 JSONObject obj = new JSONObject();
+                obj.put("id", c.id);                        // ✅ сохраняем
                 obj.put("name", c.name);
                 obj.put("last4", c.last4);
                 obj.put("ps", c.ps);
@@ -281,13 +279,11 @@ public class BankCardsActivity extends BaseActivity {
     }
 
     private void loadCardsFromPrefs() {
-        // 1) сброс UI и списка
         cards.clear();
         cardsContainer.removeAllViews();
 
         String json = prefs.getString(getPrefsKeyForBank(), null);
 
-        // 2) если нет данных — показываем empty-state
         if (json == null || json.isEmpty()) {
             cardEmptyState.setVisibility(View.VISIBLE);
             cardsContainer.setVisibility(View.GONE);
@@ -295,11 +291,18 @@ public class BankCardsActivity extends BaseActivity {
             return;
         }
 
-        // 3) парсим
+        boolean needResave = false;
+
         try {
             JSONArray arr = new JSONArray(json);
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
+                String id = obj.optString("id", null);
+                if (id == null || id.isEmpty()) {
+                    id = UUID.randomUUID().toString();      // ✅ миграция старых карт
+                    needResave = true;
+                }
 
                 String name = obj.optString("name", "Моя карта");
                 String last4 = obj.optString("last4", "0000");
@@ -307,13 +310,12 @@ public class BankCardsActivity extends BaseActivity {
                 int color = obj.optInt("color", Color.parseColor("#8A3CFF"));
                 String cashbackUnit = obj.optString("cashbackUnit", "RUB");
 
-                cards.add(new CardData(name, last4, ps, color, cashbackUnit));
+                cards.add(new CardData(id, name, last4, ps, color, cashbackUnit));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        // 4) ВАЖНО: показываем правильное состояние
         if (cards.isEmpty()) {
             cardEmptyState.setVisibility(View.VISIBLE);
             cardsContainer.setVisibility(View.GONE);
@@ -322,7 +324,10 @@ public class BankCardsActivity extends BaseActivity {
             ensureListVisible();
             for (CardData c : cards) addCardView(c);
         }
+
+        if (needResave) saveCardsToPrefs(); // ✅ чтобы больше не мигрировать
     }
+
     @Override
     protected void onResume() {
         super.onResume();

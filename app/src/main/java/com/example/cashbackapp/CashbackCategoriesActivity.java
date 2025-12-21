@@ -24,6 +24,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 public class CashbackCategoriesActivity extends BaseActivity {
 
     // extras
+    private String cardId;
     private String bankName;
     private String cardName;
     private String last4;
@@ -71,6 +72,7 @@ public class CashbackCategoriesActivity extends BaseActivity {
         last4 = i.getStringExtra("card_last4");
         ps = i.getStringExtra("card_ps");
         cardColor = i.getIntExtra("card_color", Color.parseColor("#8A3CFF"));
+        cardId = getIntent().getStringExtra("card_id");
 
         cashbackUnit = i.getStringExtra("card_cashback_unit");
         if (cashbackUnit == null) cashbackUnit = "RUB";
@@ -199,31 +201,28 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
         boolean isEdit = selectedCategories.containsKey(categoryName);
 
-        // лимит: максимум 5 категорий
-        if (!isEdit && selectedCategories.size() >= 5) {
-            android.widget.Toast.makeText(this, "Можно выбрать максимум 5 категорий", android.widget.Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // ❌ УДАЛЕНО: ограничение максимум 5 категорий
+        // if (!isEdit && selectedCategories.size() >= 5) { ... return; }
 
-        new AlertDialog.Builder(this)
+        new android.app.AlertDialog.Builder(this)
                 .setTitle(categoryName)
                 .setMessage(isEdit ? "Измените % кэшбэка" : "Укажите % кэшбэка для этой категории")
                 .setView(et)
                 .setPositiveButton(isEdit ? "Сохранить" : "Добавить", (d, w) -> {
                     String raw = et.getText().toString().trim().replace(",", ".");
                     if (raw.isEmpty()) {
-                        Toast.makeText(this, "Введите процент", Toast.LENGTH_SHORT).show();
+                        android.widget.Toast.makeText(this, "Введите процент", android.widget.Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     try {
                         double val = Double.parseDouble(raw);
                         if (val <= 0 || val > 100) {
-                            Toast.makeText(this, "Процент должен быть от 0 до 100", Toast.LENGTH_SHORT).show();
+                            android.widget.Toast.makeText(this, "Процент должен быть от 0 до 100", android.widget.Toast.LENGTH_SHORT).show();
                             return;
                         }
                     } catch (Exception e) {
-                        Toast.makeText(this, "Некорректное значение", Toast.LENGTH_SHORT).show();
+                        android.widget.Toast.makeText(this, "Некорректное значение", android.widget.Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -235,11 +234,9 @@ public class CashbackCategoriesActivity extends BaseActivity {
                 .setNegativeButton("Отмена", null)
                 .show();
     }
-
     // =========================================================
     // Chips UI
     // =========================================================
-
     private void refreshChipsUI() {
         selectedChipsContainer.removeAllViews();
         for (java.util.Map.Entry<String, String> e : selectedCategories.entrySet()) {
@@ -331,7 +328,7 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
     private void updateSelectedCount() {
         if (tvHeaderSelected == null) return;
-        tvHeaderSelected.setText("Выбрано " + selectedCategories.size() + " из 5 категорий");
+        tvHeaderSelected.setText("Выбрано " + selectedCategories.size() + " категорий");
     }
 
     // =========================================================
@@ -339,7 +336,16 @@ public class CashbackCategoriesActivity extends BaseActivity {
     // =========================================================
 
     private String getPrefsKeyForThisCard() {
-        return "cashback_categories_" + bankName + "_" + last4;
+        // ✅ основной стабильный ключ
+        if (cardId != null && !cardId.trim().isEmpty()) {
+            return "cashback_categories_card_" + cardId.trim();
+        }
+
+        // fallback (если вдруг card_id не передали)
+        String safePs = (ps == null) ? "" : ps.trim();
+        String safeLast4 = (last4 == null) ? "" : last4.trim();
+        String safeName = (cardName == null) ? "" : cardName.trim();
+        return "cashback_categories_" + safePs + "_" + safeLast4 + "_" + safeName;
     }
 
     private void saveSelectedCategoriesToPrefs() {
