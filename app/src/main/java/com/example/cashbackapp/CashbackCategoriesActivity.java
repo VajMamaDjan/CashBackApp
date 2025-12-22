@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +42,8 @@ public class CashbackCategoriesActivity extends BaseActivity {
     private LinearLayout selectedChipsContainer;
     private TextView tvHeaderSelected;
     private TextView tvPlacesLeft;
+    private ImageView btnCategorySettings;
+    private Integer categoryLimit;
 
     // selected categories: category -> percent (без знака %)
     private final java.util.LinkedHashMap<String, String> selectedCategories = new java.util.LinkedHashMap<>();
@@ -93,29 +96,19 @@ public class CashbackCategoriesActivity extends BaseActivity {
         tvHeaderCardName.setText(cardName);
         tvHeaderCardLast4.setText("•••• " + last4);
 
-        // RUB / ✈️ + "МИЛИ" в хедере (если у тебя добавлен tvHeaderCashbackUnit)
-        TextView tvHeaderCashbackUnit = null;
-        try {
-            tvHeaderCashbackUnit = findViewById(R.id.tvHeaderCashbackUnit);
-        } catch (Exception ignored) {}
-
-        if (tvHeaderCashbackUnit != null) {
-            if ("MILES".equalsIgnoreCase(cashbackUnit)) {
-                tvHeaderCashbackUnit.setText("МИЛИ");
-                tvHeaderCashbackUnit.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_plane, 0, 0, 0);
-                tvHeaderCashbackUnit.setCompoundDrawablePadding((int) dp(4));
-            } else {
-                tvHeaderCashbackUnit.setCompoundDrawables(null, null, null, null);
-                tvHeaderCashbackUnit.setText("РУБ");
-            }
-        }
-
         // ---------- chips container ----------
         selectedChipsContainer = findViewById(R.id.selectedChipsContainer);
 
         // ---------- texts ----------
         tvHeaderSelected = findViewById(R.id.tvHeaderSelected);
         tvPlacesLeft = findViewById(R.id.tvPlacesLeft);
+
+        btnCategorySettings = findViewById(R.id.btnCategorySettings);
+
+        categoryLimit = loadCategoryLimitForCard();
+        updateSelectedCount();
+
+        btnCategorySettings.setOnClickListener(v -> showCategoryLimitBottomSheet());
 
         tvPlacesLeft.setText("Выберите категории кэшбэка");
 
@@ -130,6 +123,71 @@ public class CashbackCategoriesActivity extends BaseActivity {
     // =========================================================
     // BottomSheet choose category (4 columns + search)
     // =========================================================
+
+    private void showCategoryLimitBottomSheet() {
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog =
+                new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+
+        View sheet = getLayoutInflater().inflate(R.layout.bottom_sheet_category_limit, null);
+        dialog.setContentView(sheet);
+
+        View btnClose = sheet.findViewById(R.id.btnClose);
+        View btnCancel = sheet.findViewById(R.id.btnCancel);
+        View btnSave = sheet.findViewById(R.id.btnSave);
+
+        android.widget.EditText etLimit = sheet.findViewById(R.id.etLimit);
+        View btnUp = sheet.findViewById(R.id.btnUp);
+        View btnDown = sheet.findViewById(R.id.btnDown);
+
+        // стартовое значение
+        int start = (categoryLimit == null) ? 8 : categoryLimit;
+        start = clamp(start, 1, 20);
+        etLimit.setText(String.valueOf(start));
+        etLimit.setSelection(etLimit.getText().length());
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnUp.setOnClickListener(v -> {
+            int cur = parseIntSafe(etLimit.getText().toString(), 1);
+            cur = clamp(cur + 1, 1, 20);
+            etLimit.setText(String.valueOf(cur));
+            etLimit.setSelection(etLimit.getText().length());
+        });
+
+        btnDown.setOnClickListener(v -> {
+            int cur = parseIntSafe(etLimit.getText().toString(), 1);
+            cur = clamp(cur - 1, 1, 20);
+            etLimit.setText(String.valueOf(cur));
+            etLimit.setSelection(etLimit.getText().length());
+        });
+
+        btnSave.setOnClickListener(v -> {
+            int val = parseIntSafe(etLimit.getText().toString(), 1);
+            val = clamp(val, 1, 20);
+
+            categoryLimit = val;
+            saveCategoryLimitForCard();
+            updateSelectedCount();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private int clamp(int v, int min, int max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
+    private int parseIntSafe(String s, int fallback) {
+        try {
+            s = s.trim();
+            if (s.isEmpty()) return fallback;
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
 
     private void showChooseCategorySheet() {
         BottomSheetDialog dialog = new BottomSheetDialog(this);
@@ -328,13 +386,32 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
     private void updateSelectedCount() {
         if (tvHeaderSelected == null) return;
-        tvHeaderSelected.setText("Выбрано " + selectedCategories.size() + " категорий");
+        int selected = selectedCategories.size();
+        int limit = (categoryLimit == null) ? 20 : categoryLimit; // если лимит не задан — можно показывать 20 или “без лимита”
+        tvHeaderSelected.setText("Выбрано " + selected + " из " + limit + " категорий");
     }
 
     // =========================================================
     // Preferences (save/restore by card)
     // =========================================================
+    private String getLimitPrefsKeyForThisCard() {
+        return "category_limit_card_" + cardId;
+    }
 
+    private void saveCategoryLimitForCard() {
+        SharedPreferences.Editor ed = prefs.edit();
+        if (categoryLimit == null) {
+            ed.remove(getLimitPrefsKeyForThisCard());
+        } else {
+            ed.putInt(getLimitPrefsKeyForThisCard(), categoryLimit);
+        }
+        ed.apply();
+    }
+
+    private Integer loadCategoryLimitForCard() {
+        if (!prefs.contains(getLimitPrefsKeyForThisCard())) return null;
+        return prefs.getInt(getLimitPrefsKeyForThisCard(), 0);
+    }
     private String getPrefsKeyForThisCard() {
         // ✅ основной стабильный ключ
         if (cardId != null && !cardId.trim().isEmpty()) {

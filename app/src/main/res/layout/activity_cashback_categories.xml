@@ -106,25 +106,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/llHeaderTopRow"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="28dp"
                 android:text="Выбрано 0 категорий"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
                 android:alpha="0.9"/>
 
-            <TextView
-                android:id="@+id/tvHeaderCashbackUnit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/tvHeaderSelected"
-                android:layout_alignBottom="@id/tvHeaderSelected"
+            <ImageView
+                android:id="@+id/btnCategorySettings"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_below="@id/llHeaderTopRow"
+                android:layout_marginTop="14dp"
                 android:layout_alignParentEnd="true"
-                android:gravity="center"
-                android:text="РУБ"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:alpha="0.9"/>
+                android:scaleType="center"
+                android:background="@drawable/bg_header_settings_circle"
+                android:src="@drawable/ic_settings_24"
+                android:contentDescription="Настройки категорий"
+                app:tint="@android:color/white" />
 
         </RelativeLayout>
     </LinearLayout>

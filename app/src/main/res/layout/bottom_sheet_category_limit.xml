@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Изменить лимит категорий"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#111111" />
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_close"
+            app:tint="#7A7A7A" />
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="Количество категорий за текущий месяц"
+        android:textSize="13sp"
+        android:textColor="#7A7A7A" />
+
+    <RelativeLayout
+        android:id="@+id/limitField"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_limit_input">
+
+        <EditText
+            android:id="@+id/etLimit"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toStartOf="@id/stepper"
+            android:background="@android:color/transparent"
+            android:paddingStart="14dp"
+            android:paddingEnd="10dp"
+            android:gravity="center_vertical"
+            android:inputType="number"
+            android:maxLength="2"
+            android:textSize="18sp"
+            android:textColor="#111111"
+            android:hint="8"
+            android:importantForAutofill="no"
+            android:imeOptions="actionDone" />
+
+        <LinearLayout
+            android:id="@+id/stepper"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingEnd="6dp"
+            android:paddingStart="6dp">
+
+            <ImageButton
+                android:id="@+id/btnUp"
+                android:layout_width="36dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_up"
+                android:contentDescription="Увеличить"
+                android:padding="2dp" />
+
+            <ImageButton
+                android:id="@+id/btnDown"
+                android:layout_width="36dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_down"
+                android:contentDescription="Уменьшить"
+                android:padding="2dp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="Введите от 1 до 20"
+        android:textSize="12sp"
+        android:textColor="#9A9A9A" />
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Отмена"
+            android:textSize="15sp"
+            android:textColor="#111111"
+            android:background="@drawable/bg_button_gray_rounded" />
+
+        <TextView
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:gravity="center"
+            android:text="Сохранить"
+            android:textSize="15sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_add_category" />
+    </LinearLayout>
+
+</LinearLayout>
