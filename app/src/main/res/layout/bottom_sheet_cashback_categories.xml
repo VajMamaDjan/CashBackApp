@@ -33,16 +33,14 @@
 
     <!-- Search -->
     <LinearLayout
-        android:id="@+id/searchContainer"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="48dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-        android:orientation="horizontal"
+        android:background="@drawable/bg_search_field"
         android:gravity="center_vertical"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:background="@drawable/bg_search_field">
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingEnd="8dp">
 
         <ImageView
             android:layout_width="20dp"
@@ -53,15 +51,17 @@
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:hint="Поиск категории"
-            android:textSize="14sp"
+            android:hint="Поиск"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLines="1"
             android:singleLine="true"
-            android:imeOptions="actionSearch"
-            android:inputType="text"/>
+            android:textColor="#111111"
+            android:textColorHint="#9A9A9A" />
 
         <ImageView
             android:id="@+id/btnClearSearch"
@@ -73,6 +73,21 @@
             app:tint="#7A7A7A" />
     </LinearLayout>
 
+    <!-- ✅ Add custom category -->
+    <TextView
+        android:id="@+id/btnAddCustomCategory"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:text="➕ Добавить свою категорию"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#6A35FF"
+        android:background="@drawable/bg_dashed_rounded" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="10dp"/>
@@ -82,5 +97,5 @@
         android:id="@+id/rvCategories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:overScrollMode="never"/>
+        android:overScrollMode="never" />
 </LinearLayout>
