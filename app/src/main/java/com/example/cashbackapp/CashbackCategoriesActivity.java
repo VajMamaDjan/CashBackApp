@@ -32,6 +32,13 @@ public class CashbackCategoriesActivity extends BaseActivity {
     private int cardColor;
     private String cardId;
 
+    // Month navigation
+    private java.util.Calendar currentMonthCal;
+    private TextView tvMonthName;
+    private TextView tvYear;
+    private View btnPrevMonth;
+    private View btnNextMonth;
+
     // prefs
     private SharedPreferences prefs;        // app_prefs: лимит + выбранные категории
     private SharedPreferences customPrefs;  // отдельный prefs: кастомные категории
@@ -68,6 +75,26 @@ public class CashbackCategoriesActivity extends BaseActivity {
         customPrefs = getSharedPreferences("custom_categories_prefs", MODE_PRIVATE);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> onBackPressed());
+
+        tvMonthName = findViewById(R.id.tvMonthName);
+        tvYear = findViewById(R.id.tvYear);
+        btnPrevMonth = findViewById(R.id.btnPrevMonth);
+        btnNextMonth = findViewById(R.id.btnNextMonth);
+
+        // текущий месяц = сегодня (с обнулением дня)
+        currentMonthCal = java.util.Calendar.getInstance();
+        currentMonthCal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+
+        renderMonthHeader();
+
+        btnPrevMonth.setOnClickListener(v -> {
+            shiftMonth(-1);
+        });
+
+        btnNextMonth.setOnClickListener(v -> {
+            shiftMonth(+1);
+        });
+
 
         // ---------- extras ----------
         Intent i = getIntent();
@@ -111,9 +138,7 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
         // load limit
         categoryLimit = loadCategoryLimitForCard();
-
-        // restore saved chips
-        restoreSelectedCategoriesFromPrefs();
+        restoreSelectedCategoriesFromPrefs(); // уже будет грузить по текущему месяцу
         updateSelectedCount();
 
         if (btnCategorySettings != null) {
@@ -121,14 +146,54 @@ public class CashbackCategoriesActivity extends BaseActivity {
         }
 
         // add category button
-        findViewById(R.id.btnAddCategory).setOnClickListener(v -> showChooseCategorySheet());
+        findViewById(R.id.btnAddCategory).setOnClickListener(v -> {
+            if (isLimitReached()) {
+                Toast.makeText(
+                        this,
+                        "Достигнут лимит категорий для этой карты",
+                        Toast.LENGTH_SHORT
+                ).show();
+                return;
+            }
+            showChooseCategorySheet();
+        });
+
+    }
+
+    private void shiftMonth(int delta) {
+        currentMonthCal.add(java.util.Calendar.MONTH, delta);
+        currentMonthCal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+
+        renderMonthHeader();
+
+        // Загружаем категории для нового месяца
+        restoreSelectedCategoriesFromPrefs();
+        updateSelectedCount();
+    }
+
+    private void renderMonthHeader() {
+        java.util.Locale ru = new java.util.Locale("ru");
+        String month = currentMonthCal.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, ru);
+        if (month != null && month.length() > 0) {
+            month = month.substring(0,1).toUpperCase(ru) + month.substring(1);
+        }
+        int year = currentMonthCal.get(java.util.Calendar.YEAR);
+
+        if (tvMonthName != null) tvMonthName.setText(month);
+        if (tvYear != null) tvYear.setText(String.valueOf(year));
+    }
+
+    private String getMonthKey() {
+        int y = currentMonthCal.get(java.util.Calendar.YEAR);
+        int m = currentMonthCal.get(java.util.Calendar.MONTH) + 1; // 1..12
+        return String.format(java.util.Locale.US, "%04d-%02d", y, m); // например 2025-12
     }
 
     // =========================================================
     // BottomSheet choose category (4 columns + search)
     // =========================================================
 
-    void showChooseCategorySheet() {
+    private void showChooseCategorySheet() {
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         View sheet = getLayoutInflater().inflate(R.layout.bottom_sheet_cashback_categories, null);
         dialog.setContentView(sheet);
@@ -141,6 +206,12 @@ public class CashbackCategoriesActivity extends BaseActivity {
         android.widget.EditText etSearch = sheet.findViewById(R.id.etSearch);
         View btnClear = sheet.findViewById(R.id.btnClearSearch);
         View btnAddCustom = sheet.findViewById(R.id.btnAddCustomCategory);
+
+        TextView tvAddCustom = sheet.findViewById(R.id.tvAddCustom);
+        ImageView ivAddCustom = sheet.findViewById(R.id.ivAddCustom);
+
+        // обновляем состояние сразу при открытии
+        updateAddCustomCategoryState(btnAddCustom, tvAddCustom, ivAddCustom);
 
         // load categories (built-in + custom)
         rebuildAllCategories();
@@ -177,31 +248,35 @@ public class CashbackCategoriesActivity extends BaseActivity {
         btnClear.setOnClickListener(v -> etSearch.setText(""));
 
         if (btnAddCustom != null) {
-            btnAddCustom.setOnClickListener(v -> showAddCustomCategoryDialog(() -> {
-                // ✅ после добавления кастомной категории:
-                // 1) перечитать лимит (на всякий случай)
-                categoryLimit = loadCategoryLimitForCard();
-                // 2) обновить счетчик
-                updateSelectedCount();
-                // 3) гарантировать, что ⚙️ продолжает работать
-                if (btnCategorySettings != null) {
-                    btnCategorySettings.setOnClickListener(x -> showCategoryLimitBottomSheet());
+            btnAddCustom.setOnClickListener(v -> {
+                if (isLimitReached()) {
+                    Toast.makeText(
+                            this,
+                            "Достигнут лимит категорий для этой карты",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    return;
                 }
 
-                // rebuild list and apply current search filter
-                rebuildAllCategories();
-                String q = etSearch.getText().toString().trim().toLowerCase();
+                showAddCustomCategoryDialog(() -> {
+                    updateSelectedCount();
 
-                filteredCategories.clear();
-                if (q.isEmpty()) {
-                    filteredCategories.addAll(allCategories);
-                } else {
-                    for (CashbackCategory cc : allCategories) {
-                        if (cc.name.toLowerCase().contains(q)) filteredCategories.add(cc);
+                    rebuildAllCategories();
+                    String q = etSearch.getText().toString().trim().toLowerCase();
+
+                    filteredCategories.clear();
+                    if (q.isEmpty()) {
+                        filteredCategories.addAll(allCategories);
+                    } else {
+                        for (CashbackCategory cc : allCategories) {
+                            if (cc.name.toLowerCase().contains(q)) {
+                                filteredCategories.add(cc);
+                            }
+                        }
                     }
-                }
-                categoryAdapter.notifyDataSetChanged();
-            }));
+                    categoryAdapter.notifyDataSetChanged();
+                });
+            });
         }
 
         dialog.show();
@@ -218,10 +293,20 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
         // built-in
         String[] names = getResources().getStringArray(R.array.cashback_categories);
-        for (String n : names) allCategories.add(new CashbackCategory(n));
+        for (String n : names) allCategories.add(new CashbackCategory(applyNiceWrap(n)));
 
         // custom (global for user)
-        for (String n : loadCustomCategories()) allCategories.add(new CashbackCategory(n));
+        for (String n : loadCustomCategories()) allCategories.add(new CashbackCategory(applyNiceWrap(n)));
+    }
+
+    private String applyNiceWrap(String name) {
+        if (name == null) return "";
+        switch (name) {
+            case "Автозапчасти":
+                return "Автозап\u00ADчасти";
+            default:
+                return name;
+        }
     }
 
     private java.util.ArrayList<String> loadCustomCategories() {
@@ -263,6 +348,31 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
         return false;
     }
+
+    private int getEffectiveLimit() {
+        return (categoryLimit == null) ? 5 : categoryLimit; // дефолт 5
+    }
+
+    private boolean isLimitReached() {
+        return selectedCategories.size() >= getEffectiveLimit();
+    }
+
+    private void updateAddCustomCategoryState(View btnAddCustom, TextView tvAddCustom, ImageView ivAddCustom) {
+        if (btnAddCustom == null || tvAddCustom == null || ivAddCustom == null) return;
+
+        int limit = getEffectiveLimit();
+        boolean reached = selectedCategories.size() >= limit;
+
+        btnAddCustom.setEnabled(!reached);
+        btnAddCustom.setAlpha(reached ? 0.45f : 1f);
+
+        int activeColor = Color.parseColor("#6A35FF");
+        int disabledColor = Color.parseColor("#9A9A9A");
+
+        tvAddCustom.setTextColor(reached ? disabledColor : activeColor);
+        ivAddCustom.setColorFilter(reached ? disabledColor : activeColor);
+    }
+
 
     private void showAddCustomCategoryDialog(Runnable onAdded) {
         final android.widget.EditText et = new android.widget.EditText(this);
@@ -314,7 +424,7 @@ public class CashbackCategoriesActivity extends BaseActivity {
 
         int effectiveLimit = (categoryLimit == null) ? 5 : categoryLimit;
 
-        if (!isEdit && selectedCategories.size() >= effectiveLimit) {
+        if (!isEdit && selectedCategories.size() >= getEffectiveLimit()) {
             Toast.makeText(this, "Достигнут лимит категорий для этой карты", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -399,10 +509,17 @@ public class CashbackCategoriesActivity extends BaseActivity {
         }
 
         if (id == R.id.action_delete) {
-            selectedCategories.remove(categoryName);
-            selectedChipsContainer.removeView(chipView);
-            updateSelectedCount();
-            saveSelectedCategoriesToPrefs();
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Удалить категорию?")
+                    .setMessage("Вы точно хотите удалить \"" + categoryName + "\" из выбранных категорий?")
+                    .setPositiveButton("Удалить", (dialog, which) -> {
+                        selectedCategories.remove(categoryName);
+                        selectedChipsContainer.removeView(chipView);
+                        updateSelectedCount();
+                        saveSelectedCategoriesToPrefs();
+                    })
+                    .setNegativeButton("Отмена", null)
+                    .show();
             return true;
         }
 
@@ -448,10 +565,12 @@ public class CashbackCategoriesActivity extends BaseActivity {
     // =========================================================
 
     private String getPrefsKeyForThisCard() {
+        String monthKey = getMonthKey();
+
         if (cardId != null && !cardId.trim().isEmpty()) {
-            return "cashback_categories_card_" + cardId.trim();
+            return "cashback_categories_card_" + cardId.trim() + "_" + monthKey;
         }
-        return "cashback_categories_" + bankName + "_" + last4;
+        return "cashback_categories_" + bankName + "_" + last4 + "_" + monthKey;
     }
 
     private void saveSelectedCategoriesToPrefs() {

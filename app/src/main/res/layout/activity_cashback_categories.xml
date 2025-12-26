@@ -47,6 +47,64 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Month switcher -->
+        <LinearLayout
+            android:id="@+id/monthSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:background="@drawable/bg_month_switcher">
+
+            <ImageView
+                android:id="@+id/btnPrevMonth"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_chevron_left_24"
+                android:background="@drawable/bg_month_btn"
+                app:tint="@android:color/white" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvMonthName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Декабрь"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/tvYear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2025"
+                    android:textSize="12sp"
+                    android:textColor="#CCFFFFFF" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/btnNextMonth"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_chevron_right_24"
+                android:background="@drawable/bg_month_btn"
+                app:tint="@android:color/white" />
+
+        </LinearLayout>
+
         <!-- ===== КАРТОЧКА В ХЕДЕРЕ ===== -->
         <RelativeLayout
             android:id="@+id/headerCardRoot"

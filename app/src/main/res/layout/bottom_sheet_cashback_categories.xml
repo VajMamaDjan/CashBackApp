@@ -74,19 +74,35 @@
     </LinearLayout>
 
     <!-- ✅ Add custom category -->
-    <TextView
+    <LinearLayout
         android:id="@+id/btnAddCustomCategory"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="10dp"
+        android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="14dp"
         android:paddingEnd="14dp"
-        android:text="➕ Добавить свою категорию"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:textColor="#6A35FF"
-        android:background="@drawable/bg_dashed_rounded" />
+        android:background="@drawable/bg_dashed_rounded">
+
+        <ImageView
+            android:id="@+id/ivAddCustom"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_add"
+            app:tint="#6A35FF" />
+
+        <TextView
+            android:id="@+id/tvAddCustom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Добавить свою категорию"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#6A35FF" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
