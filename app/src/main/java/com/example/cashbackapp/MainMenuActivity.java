@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.core.widget.NestedScrollView;
 
 public class MainMenuActivity extends BaseActivity {
 
@@ -43,6 +45,8 @@ public class MainMenuActivity extends BaseActivity {
     private LinearLayout layoutMyBanksHeader;
     private ImageView ivMyBanksArrow;
     private boolean isBanksExpanded = true;
+    private SwipeRefreshLayout swipeRefresh;
+    private NestedScrollView scrollContent;
 
     @Override
     protected boolean useFullscreenStatusBar() {
@@ -59,6 +63,7 @@ public class MainMenuActivity extends BaseActivity {
 
         initViews();
         setupClicks();
+        setupSwipeToRefresh();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
 
@@ -107,6 +112,8 @@ public class MainMenuActivity extends BaseActivity {
         banksContainer = findViewById(R.id.banksContainer);
         layoutMyBanksHeader = findViewById(R.id.layoutMyBanksHeader);
         ivMyBanksArrow = findViewById(R.id.ivMyBanksArrow);
+        swipeRefresh = findViewById(R.id.swipeRefresh);
+        scrollContent = findViewById(R.id.scrollContent);
     }
 
     private void setupClicks() {
@@ -307,29 +314,61 @@ public class MainMenuActivity extends BaseActivity {
         final float closeThresholdPart = 0.85f;
 
         final float[] downX = new float[1];
+        final float[] downY = new float[1];
         final float[] startTranslationX = new float[1];
+        final boolean[] isSwipingHorizontally = new boolean[1];
+        final boolean[] isDecided = new boolean[1];
         final float touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
         final boolean[] isDragging = new boolean[1];
 
         cardContent.setOnTouchListener((v, event) -> {
+
             switch (event.getActionMasked()) {
 
-                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_DOWN: {
                     downX[0] = event.getX();
+                    downY[0] = event.getY();
                     startTranslationX[0] = cardContent.getTranslationX();
-                    isDragging[0] = false;
-                    v.getParent().requestDisallowInterceptTouchEvent(true);
+
+                    isSwipingHorizontally[0] = false;
+                    isDecided[0] = false;
+
+                    // НЕ запрещаем перехват сразу — иначе вертикальный скролл не начнётся
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
                     return true;
+                }
 
                 case MotionEvent.ACTION_MOVE: {
-                    float moveX = event.getX();
-                    float diffX = moveX - downX[0];
+                    float dx = event.getX() - downX[0];
+                    float dy = event.getY() - downY[0];
 
-                    float newTranslation = startTranslationX[0] + diffX;
+                    // ещё не решили, что это за жест
+                    if (!isDecided[0]) {
+                        if (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop) {
+                            isDecided[0] = true;
 
-                    if (!isDragging[0] && Math.abs(diffX) > touchSlop) {
-                        isDragging[0] = true;
+                            // если горизонталь сильнее — это свайп карточки
+                            if (Math.abs(dx) > Math.abs(dy)) {
+                                isSwipingHorizontally[0] = true;
+                                v.getParent().requestDisallowInterceptTouchEvent(true); // забираем жест себе
+                            } else {
+                                // вертикаль — отдаём NestedScrollView
+                                isSwipingHorizontally[0] = false;
+                                v.getParent().requestDisallowInterceptTouchEvent(false);
+                                return false; // важно: чтобы скролл пошёл
+                            }
+                        } else {
+                            return true;
+                        }
                     }
+
+                    // если решили, что это вертикальный жест — не мешаем скроллу
+                    if (!isSwipingHorizontally[0]) {
+                        return false;
+                    }
+
+                    // ---- дальше твоя текущая логика горизонтального свайпа ----
+                    float newTranslation = startTranslationX[0] + dx;
 
                     if (newTranslation > 0) newTranslation = 0;
                     if (newTranslation < -maxSwipe) newTranslation = -maxSwipe;
@@ -342,25 +381,19 @@ public class MainMenuActivity extends BaseActivity {
                         deleteBackground.setVisibility(View.GONE);
                     }
 
-                    v.getParent().requestDisallowInterceptTouchEvent(true);
                     return true;
                 }
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL: {
 
-                    float upX = event.getX();
-                    float dx = upX - downX[0];
-
-                    if (!isDragging[0] && Math.abs(dx) < touchSlop && Math.abs(startTranslationX[0]) < 5f) {
-                        Intent intent = new Intent(MainMenuActivity.this, BankCardsActivity.class);
-                        intent.putExtra("bank_name", bankName);
-                        startActivity(intent);
-
+                    // если жест был вертикальным — мы его не обрабатываем
+                    if (!isSwipingHorizontally[0]) {
                         v.getParent().requestDisallowInterceptTouchEvent(false);
-                        return true;
+                        return false;
                     }
 
+                    // ---- дальше оставляешь твою текущую логику "открыть/закрыть" ----
                     float current = cardContent.getTranslationX();
                     float openedPart = Math.abs(current) / maxSwipe;
 
@@ -600,5 +633,38 @@ public class MainMenuActivity extends BaseActivity {
         editor.remove(cardsKey);
 
         editor.apply();
+    }
+    // ---------- Swipe-to-refresh ----------
+    private void setupSwipeToRefresh() {
+        if (swipeRefresh == null) return;
+
+        // Pull-to-refresh должен срабатывать только когда ScrollView в самом верху.
+        swipeRefresh.setOnChildScrollUpCallback((parent, child) -> {
+            if (scrollContent == null) return false;
+            return scrollContent.canScrollVertically(-1);
+        });
+
+        swipeRefresh.setOnRefreshListener(this::refreshMainMenuData);
+    }
+
+    private void refreshMainMenuData() {
+        // Основное обновление данных на экране
+        reloadBanks();
+
+        // Сохраняем состояние свернуто/развернуто
+        if (!isBanksExpanded) {
+            banksContainer.setVisibility(View.GONE);
+            banksContainer.setAlpha(1f);
+            if (ivMyBanksArrow != null) ivMyBanksArrow.setRotation(180f);
+        } else {
+            banksContainer.setVisibility(View.VISIBLE);
+            banksContainer.setAlpha(1f);
+            if (ivMyBanksArrow != null) ivMyBanksArrow.setRotation(0f);
+        }
+
+        // Остановить индикатор
+        if (swipeRefresh != null) {
+            swipeRefresh.post(() -> swipeRefresh.setRefreshing(false));
+        }
     }
 }
