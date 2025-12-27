@@ -87,13 +87,8 @@ public class BankCardsActivity extends BaseActivity {
         if (bankName == null) bankName = "Банк";
         tvBankNameHeader.setText(bankName);
 
-        if (bankName.contains("Сбер")) {
-            ivBankLogoHeader.setImageResource(R.drawable.sber_logo);
-        } else if (bankName.contains("Т-Банк") || bankName.contains("ТБанк")) {
-            ivBankLogoHeader.setImageResource(R.drawable.ic_tbank);
-        } else {
-            ivBankLogoHeader.setImageResource(R.drawable.ic_bank_placeholder);
-        }
+        // ✅ Единый источник правды по логотипам банков
+        ivBankLogoHeader.setImageResource(BankIconResolver.resolveLogoRes(bankName));
 
         // ---------- СПИСОК ----------
         cardEmptyState = findViewById(R.id.cardEmptyState);

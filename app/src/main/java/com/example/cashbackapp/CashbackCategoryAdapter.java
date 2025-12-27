@@ -3,6 +3,7 @@ package com.example.cashbackapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,7 +36,13 @@ public class CashbackCategoryAdapter extends RecyclerView.Adapter<CashbackCatego
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
         CashbackCategory c = items.get(position);
+
         h.tvName.setText(c.name);
+
+        // ✅ единый источник правды: values/cashback_categories.xml
+        int iconRes = CashbackCategoryIconResolver.resolve(h.itemView.getContext(), c.name);
+        h.ivIcon.setImageResource(iconRes);
+
         h.itemView.setOnClickListener(v -> listener.onClick(c));
     }
 
@@ -45,9 +52,12 @@ public class CashbackCategoryAdapter extends RecyclerView.Adapter<CashbackCatego
     }
 
     static class VH extends RecyclerView.ViewHolder {
+        ImageView ivIcon;
         TextView tvName;
+
         VH(@NonNull View itemView) {
             super(itemView);
+            ivIcon = itemView.findViewById(R.id.ivIcon);
             tvName = itemView.findViewById(R.id.tvName);
         }
     }

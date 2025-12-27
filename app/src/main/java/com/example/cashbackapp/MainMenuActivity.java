@@ -20,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.ViewConfiguration;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -47,7 +46,6 @@ public class MainMenuActivity extends BaseActivity {
 
     @Override
     protected boolean useFullscreenStatusBar() {
-        // Для главного меню можно оставить false, чтобы статус-бар был обычным
         return false;
     }
 
@@ -64,17 +62,15 @@ public class MainMenuActivity extends BaseActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
 
-        // Текущая вкладка – "Банки"
         bottomNavigationView.setSelectedItemId(R.id.nav_banks);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_banks) {
-                // уже на этом экране, ничего не делаем
                 return true;
             } else if (id == R.id.nav_analytics) {
                 startActivity(new Intent(this, AnalyticsActivity.class));
-                overridePendingTransition(0, 0); // без анимации
+                overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_settings) {
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -84,7 +80,6 @@ public class MainMenuActivity extends BaseActivity {
             return false;
         });
 
-        // при старте загрузим уже выбранные банки
         loadSavedBanks();
     }
 
@@ -92,33 +87,19 @@ public class MainMenuActivity extends BaseActivity {
         isBanksExpanded = !isBanksExpanded;
 
         if (isBanksExpanded) {
-            // показываем
             banksContainer.setVisibility(View.VISIBLE);
-
-            // лёгкая анимация появления
             banksContainer.setAlpha(0f);
-            banksContainer.animate()
-                    .alpha(1f)
-                    .setDuration(150)
-                    .start();
-
-            // стрелка вниз
+            banksContainer.animate().alpha(1f).setDuration(150).start();
             ivMyBanksArrow.animate().rotation(0f).setDuration(150).start();
-
         } else {
-            // анимация исчезновения
             banksContainer.animate()
                     .alpha(0f)
                     .setDuration(150)
                     .withEndAction(() -> banksContainer.setVisibility(View.GONE))
                     .start();
-
-            // стрелка вверх
             ivMyBanksArrow.animate().rotation(180f).setDuration(150).start();
         }
     }
-
-    // ---------- ИНИЦИАЛИЗАЦИЯ ВЬЮ ----------
 
     private void initViews() {
         cardAddBank = findViewById(R.id.cardAddBank);
@@ -129,21 +110,17 @@ public class MainMenuActivity extends BaseActivity {
     }
 
     private void setupClicks() {
-        // Добавить банк
         cardAddBank.setOnClickListener(v -> showBankPicker());
 
-        // Кнопка профиля
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainMenuActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
 
-        // Свернуть / развернуть список банков
         layoutMyBanksHeader.setOnClickListener(v -> toggleBanksList());
     }
 
-    // ---------- РАБОТА С SharedPreferences ----------
-
+    // ---------- SharedPreferences ----------
     private void saveBank(String bankName) {
         Set<String> saved = new HashSet<>(
                 prefs.getStringSet("selected_banks", new HashSet<>())
@@ -164,13 +141,12 @@ public class MainMenuActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // каждый раз при возврате на экран перечитываем банки из prefs
         reloadBanks();
     }
 
     private void reloadBanks() {
-        banksContainer.removeAllViews(); // очищаем старые карточки
-        loadSavedBanks();                // заново добавляем из SharedPreferences
+        banksContainer.removeAllViews();
+        loadSavedBanks();
     }
 
     private void loadSavedBanks() {
@@ -180,8 +156,7 @@ public class MainMenuActivity extends BaseActivity {
         }
     }
 
-    // ---------- ДИАЛОГ ВЫБОРА БАНКА ----------
-
+    // ---------- Bottom sheet ----------
     @SuppressLint("ClickableViewAccessibility")
     private void showBankPicker() {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
@@ -193,7 +168,6 @@ public class MainMenuActivity extends BaseActivity {
         TextView tvTitle = sheetView.findViewById(R.id.tvBottomSheetTitle);
         EditText etSearch = sheetView.findViewById(R.id.etSearchBank);
 
-        // Адаптер на основе списка банков
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -201,7 +175,6 @@ public class MainMenuActivity extends BaseActivity {
         );
         lvBanks.setAdapter(adapter);
 
-        // --- Иконки для поля поиска ---
         Drawable searchDrawable = ContextCompat.getDrawable(this, R.drawable.ic_search);
         Drawable clearDrawable = ContextCompat.getDrawable(this, R.drawable.ic_clear);
 
@@ -216,67 +189,38 @@ public class MainMenuActivity extends BaseActivity {
                     clearDrawable.getIntrinsicHeight());
         }
 
-        // Изначально показываем только лупу слева, без крестика
-        etSearch.setCompoundDrawables(
-                searchDrawable,   // left
-                null,
-                null,             // right = null
-                null
-        );
+        etSearch.setCompoundDrawables(searchDrawable, null, null, null);
 
-        // ---- Фильтрация + показ/скрытие крестика ----
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 adapter.getFilter().filter(s);
-
                 if (s.length() > 0) {
-                    // есть текст → показываем крестик справа
-                    etSearch.setCompoundDrawables(
-                            searchDrawable,
-                            null,
-                            clearDrawable,
-                            null
-                    );
+                    etSearch.setCompoundDrawables(searchDrawable, null, clearDrawable, null);
                 } else {
-                    // нет текста → убираем крестик
-                    etSearch.setCompoundDrawables(
-                            searchDrawable,
-                            null,
-                            null,
-                            null
-                    );
+                    etSearch.setCompoundDrawables(searchDrawable, null, null, null);
                 }
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
 
-        // ---- Обработка нажатия на крестик справа ----
         etSearch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP && clearDrawable != null) {
-                // координата X нажатия
                 int touchX = (int) event.getX();
                 int width = etSearch.getWidth();
                 int paddingRight = etSearch.getPaddingRight();
                 int drawableWidth = clearDrawable.getBounds().width();
 
-                // зона нажатия: справа, где нарисован крестик
                 int clearStart = width - paddingRight - drawableWidth;
                 if (touchX >= clearStart) {
-                    etSearch.setText(""); // очистить текст
-                    adapter.getFilter().filter(null); // вернуть полный список
-                    return true; // событие обработано
+                    etSearch.setText("");
+                    adapter.getFilter().filter(null);
+                    return true;
                 }
             }
-            return false; // остальные события не трогаем
+            return false;
         });
 
-        // ---- Клик по банку ----
         lvBanks.setOnItemClickListener((parent, view, position, id) -> {
             String selected = adapter.getItem(position);
             if (selected == null) return;
@@ -293,26 +237,24 @@ public class MainMenuActivity extends BaseActivity {
 
         bottomSheetDialog.show();
 
-        // ---- Ограничение высоты и свайп по заголовку ----
         View bottomSheet = (View) sheetView.getParent();
 
         if (bottomSheet != null) {
             BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
-            behavior.setDraggable(false); // нельзя тянуть за любую область
+            behavior.setDraggable(false);
 
             int targetHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.45);
             bottomSheet.getLayoutParams().height = targetHeight;
             bottomSheet.requestLayout();
 
             final float[] startY = new float[1];
-            final int threshold = (int) (getResources().getDisplayMetrics().density * 40); // ~40dp
+            final int threshold = (int) (getResources().getDisplayMetrics().density * 40);
 
             tvTitle.setOnTouchListener((v, event) -> {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         startY[0] = event.getY();
                         return true;
-
                     case MotionEvent.ACTION_MOVE:
                         float diffY = event.getY() - startY[0];
                         if (diffY > threshold) {
@@ -320,7 +262,6 @@ public class MainMenuActivity extends BaseActivity {
                             return true;
                         }
                         return true;
-
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
                         return true;
@@ -335,7 +276,7 @@ public class MainMenuActivity extends BaseActivity {
         return saved.contains(bankName);
     }
 
-    // ---------- ДОБАВЛЕНИЕ КАРТОЧКИ БАНКА ----------
+    // ---------- Bank card item ----------
     private void addBankCard(String bankName) {
 
         View itemView = LayoutInflater.from(this)
@@ -348,7 +289,7 @@ public class MainMenuActivity extends BaseActivity {
 
         tvName.setText(bankName);
 
-        // Логотипы
+        // Логотипы (как у тебя сейчас)
         if (bankName.contains("Сбер")) {
             ivLogo.setImageResource(R.drawable.sber_logo);
         } else if (bankName.contains("Т-Банк") || bankName.contains("ТБанк")) {
@@ -359,16 +300,11 @@ public class MainMenuActivity extends BaseActivity {
 
         final float density = getResources().getDisplayMetrics().density;
 
-        final float maxSwipe      = density * 145f;   // Максимальный вылет
-        final long  animDuration  = 160L;             // Мягкая анимация
+        final float maxSwipe      = density * 145f;
+        final long  animDuration  = 160L;
 
-        // Порог для открытия — почти нулевой (мгновенное открытие)
-        final float openThresholdPart  = 0.05f;       // 5% пути
-
-        // Порог для закрытия — очень лёгкий
-        final float closeThresholdPart = 0.85f;       // если осталось < 85% → закрыть
-
-        // -------------------------------------------------------------------
+        final float openThresholdPart  = 0.05f;
+        final float closeThresholdPart = 0.85f;
 
         final float[] downX = new float[1];
         final float[] startTranslationX = new float[1];
@@ -391,20 +327,15 @@ public class MainMenuActivity extends BaseActivity {
 
                     float newTranslation = startTranslationX[0] + diffX;
 
-                    // решаем, это свайп или ещё потенциальный тап
                     if (!isDragging[0] && Math.abs(diffX) > touchSlop) {
                         isDragging[0] = true;
                     }
 
-                    // Не вправо
                     if (newTranslation > 0) newTranslation = 0;
-
-                    // Не слишком влево
                     if (newTranslation < -maxSwipe) newTranslation = -maxSwipe;
 
                     cardContent.setTranslationX(newTranslation);
 
-                    // Фон появляется сразу при малейшем движении влево
                     if (newTranslation < 0) {
                         deleteBackground.setVisibility(View.VISIBLE);
                     } else {
@@ -421,9 +352,7 @@ public class MainMenuActivity extends BaseActivity {
                     float upX = event.getX();
                     float dx = upX - downX[0];
 
-                    // если НЕ было реального свайпа и карточка в закрытом положении → считаем это тапом
                     if (!isDragging[0] && Math.abs(dx) < touchSlop && Math.abs(startTranslationX[0]) < 5f) {
-                        // открыть экран карт этого банка
                         Intent intent = new Intent(MainMenuActivity.this, BankCardsActivity.class);
                         intent.putExtra("bank_name", bankName);
                         startActivity(intent);
@@ -438,16 +367,13 @@ public class MainMenuActivity extends BaseActivity {
                     boolean startedClosed = Math.abs(startTranslationX[0]) < maxSwipe * 0.5f;
 
                     if (startedClosed) {
-                        // Жест "Открыть"
                         if (openedPart < openThresholdPart) {
-                            // Слишком маленький — закрыть назад
                             cardContent.animate()
                                     .translationX(0)
                                     .setDuration(animDuration)
                                     .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
                                     .start();
                         } else {
-                            // Открыть полностью
                             deleteBackground.setVisibility(View.VISIBLE);
                             cardContent.animate()
                                     .translationX(-maxSwipe)
@@ -455,16 +381,13 @@ public class MainMenuActivity extends BaseActivity {
                                     .start();
                         }
                     } else {
-                        // Жест "Закрыть"
                         if (openedPart < closeThresholdPart) {
-                            // Достаточно чуть вернуть — закрываем
                             cardContent.animate()
                                     .translationX(0)
                                     .setDuration(animDuration)
                                     .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
                                     .start();
                         } else {
-                            // Осталось много открытого — оставляем открытой
                             deleteBackground.setVisibility(View.VISIBLE);
                             cardContent.animate()
                                     .translationX(-maxSwipe)
@@ -487,6 +410,11 @@ public class MainMenuActivity extends BaseActivity {
         final float[] delStartTranslationX = new float[1];
         final boolean[] delIsDragging = new boolean[1];
 
+        // ✅ надёжное удаление по обычному клику (fallback, если onTouch не распознаёт тап)
+        deleteBackground.setOnClickListener(v ->
+                confirmDeleteBank(bankName, itemView, cardContent, deleteBackground)
+        );
+
         deleteBackground.setOnTouchListener((v, event) -> {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
@@ -501,12 +429,11 @@ public class MainMenuActivity extends BaseActivity {
                     float dx = event.getX() - delDownX[0];
                     float dy = event.getY() - delDownY[0];
 
-                    // решаем, это свайп или ещё потенциальный тап
                     if (!delIsDragging[0]) {
                         if (Math.abs(dx) > touchSlop && Math.abs(dx) > Math.abs(dy)) {
-                            delIsDragging[0] = true; // начинаем тащить
+                            delIsDragging[0] = true;
                         } else {
-                            return true; // ждём UP для тапа
+                            return true;
                         }
                     }
 
@@ -533,17 +460,17 @@ public class MainMenuActivity extends BaseActivity {
                     float dx = event.getX() - delDownX[0];
                     float dy = event.getY() - delDownY[0];
 
-                    // если не тянули (нет драг-жеста) → считаем это тапом → диалог
                     if (!delIsDragging[0] &&
                             Math.abs(dx) < touchSlop &&
                             Math.abs(dy) < touchSlop) {
 
                         new AlertDialog.Builder(this)
                                 .setTitle("Удалить банк?")
-                                .setMessage("Удалить «" + bankName + "» из списка?")
+                                .setMessage("Будут удалены все карты и категории кэшбэка, связанные с «" + bankName + "».")
                                 .setPositiveButton("Удалить", (dialog, which) -> {
-                                    removeBank(bankName);
+                                    deepDeleteBankData(bankName);
                                     banksContainer.removeView(itemView);
+                                    Toast.makeText(this, "Банк удалён", Toast.LENGTH_SHORT).show();
                                 })
                                 .setNegativeButton("Отмена", (dialog, which) -> {
                                     cardContent.animate()
@@ -557,19 +484,16 @@ public class MainMenuActivity extends BaseActivity {
                         return true;
                     }
 
-                    // если тянули → завершаем свайп (логика закрытия/оставить открытой)
                     float current = cardContent.getTranslationX();
                     float openedPart = Math.abs(current) / maxSwipe;
 
                     if (openedPart < closeThresholdPart) {
-                        // закрыть
                         cardContent.animate()
                                 .translationX(0)
                                 .setDuration(animDuration)
                                 .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
                                 .start();
                     } else {
-                        // оставить полностью открытой
                         deleteBackground.setVisibility(View.VISIBLE);
                         cardContent.animate()
                                 .translationX(-maxSwipe)
@@ -587,5 +511,94 @@ public class MainMenuActivity extends BaseActivity {
         banksContainer.addView(itemView);
     }
 
+    // ===================== ГЛУБОКОЕ УДАЛЕНИЕ БАНКА =====================
 
+    private void confirmDeleteBank(
+            String bankName,
+            View itemView,
+            View cardContent,
+            View deleteBackground
+    ) {
+        new AlertDialog.Builder(this)
+                .setTitle("Удалить банк?")
+                .setMessage("Будут удалены все карты и категории кэшбэка, связанные с «" + bankName + "».")
+                .setPositiveButton("Удалить", (dialog, which) -> {
+                    deepDeleteBankData(bankName);
+                    banksContainer.removeView(itemView);
+                    Toast.makeText(this, "Банк удалён", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Отмена", (dialog, which) -> {
+                    if (cardContent != null && deleteBackground != null) {
+                        cardContent.animate()
+                                .translationX(0)
+                                .setDuration(160)
+                                .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
+                                .start();
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * Полное удаление банка:
+     * - банк из selected_banks
+     * - cards_for_<bank>
+     * - cashback_categories_card_<cardId>
+     * - category_limit_card_<cardId>
+     * - и любых ключей, начинающихся с этих префиксов (на будущее: помесячные ключи и т.п.)
+     */
+    private void deepDeleteBankData(String bankName) {
+        if (prefs == null) {
+            prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        }
+
+        SharedPreferences.Editor editor = prefs.edit();
+
+        // 1) убрать банк из выбранных
+        java.util.Set<String> selectedBanks =
+                new java.util.HashSet<>(prefs.getStringSet("selected_banks", new java.util.HashSet<>()));
+        selectedBanks.remove(bankName);
+        editor.putStringSet("selected_banks", selectedBanks);
+
+        // 2) достать карты банка
+        String cardsKey = "cards_for_" + bankName;
+        String cardsJson = prefs.getString(cardsKey, null);
+
+        if (cardsJson != null && !cardsJson.isEmpty()) {
+            try {
+                org.json.JSONArray arr = new org.json.JSONArray(cardsJson);
+
+                // снимок ключей, чтобы удалять по префиксам
+                java.util.Set<String> allKeys = new java.util.HashSet<>(prefs.getAll().keySet());
+
+                for (int i = 0; i < arr.length(); i++) {
+                    org.json.JSONObject obj = arr.optJSONObject(i);
+                    if (obj == null) continue;
+
+                    String cardId = obj.optString("id", "").trim();
+                    if (cardId.isEmpty()) continue;
+
+                    String categoriesKey = "cashback_categories_card_" + cardId;
+                    String limitKey = "category_limit_card_" + cardId;
+
+                    // точные ключи
+                    editor.remove(categoriesKey);
+                    editor.remove(limitKey);
+
+                    // любые ключи с префиксами
+                    for (String k : allKeys) {
+                        if (k.startsWith(categoriesKey) || k.startsWith(limitKey)) {
+                            editor.remove(k);
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        // 3) удалить список карт банка
+        editor.remove(cardsKey);
+
+        editor.apply();
+    }
 }

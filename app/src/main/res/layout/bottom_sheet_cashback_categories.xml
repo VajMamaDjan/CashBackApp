@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="12dp"
-        android:background="@drawable/bg_search_field"
+        android:background="@drawable/bg_selected_category_chip"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="14dp"

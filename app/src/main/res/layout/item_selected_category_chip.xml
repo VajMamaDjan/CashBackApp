@@ -1,45 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/chipRoot"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
-    android:layout_marginBottom="10dp"
+    android:layout_height="wrap_content"
+    android:minHeight="52dp"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingStart="14dp"
-    android:paddingEnd="12dp"
-    android:background="@drawable/bg_search_field">
+    android:paddingStart="12dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="@drawable/bg_selected_category_chip">
 
-    <TextView
-        android:id="@+id/tvChipName"
+    <!-- ИКОНКА КАТЕГОРИИ -->
+    <ImageView
+        android:id="@+id/ivChipIcon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginEnd="10dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_cat_placeholder"
+        android:contentDescription="@null"/>
+
+    <!-- ТЕКСТОВЫЙ БЛОК -->
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Категория"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="#111111"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvChipPercent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="5%"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="#6A35FF"
-        android:layout_marginEnd="10dp" />
+        <TextView
+            android:id="@+id/tvChipName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Категория"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#111111"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
+        <TextView
+            android:id="@+id/tvChipPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5%"
+            android:textSize="12sp"
+            android:textColor="#6A35FF"/>
+    </LinearLayout>
+
+    <!-- КНОПКА МЕНЮ -->
     <ImageButton
         android:id="@+id/btnChipMenu"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="6dp"
         android:src="@drawable/ic_more_vert_24"
-        android:contentDescription="@string/chip_menu"
-        app:tint="#7A7A7A" />
+        android:contentDescription="Меню категории"/>
+
 </LinearLayout>

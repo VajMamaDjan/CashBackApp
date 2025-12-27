@@ -477,6 +477,14 @@ public class CashbackCategoriesActivity extends BaseActivity {
         TextView tvName = chip.findViewById(R.id.tvChipName);
         TextView tvPercent = chip.findViewById(R.id.tvChipPercent);
         ImageButton btnMenu = chip.findViewById(R.id.btnChipMenu);
+        ImageView ivIcon = chip.findViewById(R.id.ivChipIcon);
+
+        tvName.setText(name);
+        tvPercent.setText(percent + "%");
+
+        // ✅ иконка категории — из единого источника
+        int iconRes = CashbackCategoryIconResolver.resolve(this, name);
+        ivIcon.setImageResource(iconRes);
 
         tvName.setText(name);
         tvPercent.setText(percent + "%");
