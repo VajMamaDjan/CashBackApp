@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -105,6 +106,17 @@ public class MainMenuActivity extends BaseActivity {
             ivMyBanksArrow.animate().rotation(180f).setDuration(150).start();
         }
     }
+
+    private void syncDeleteBgHeight(View deleteBackground, View cardContent) {
+        int h = cardContent.getHeight();
+        if (h <= 0) return;
+        ViewGroup.LayoutParams lp = deleteBackground.getLayoutParams();
+        if (lp.height != h) {
+            lp.height = h;
+            deleteBackground.setLayoutParams(lp);
+        }
+    }
+
 
     private void initViews() {
         cardAddBank = findViewById(R.id.cardAddBank);
@@ -284,6 +296,8 @@ public class MainMenuActivity extends BaseActivity {
     }
 
     // ---------- Bank card item ----------
+    // ---------- Bank card item ----------
+    // ---------- Bank card item ----------
     private void addBankCard(String bankName) {
 
         View itemView = LayoutInflater.from(this)
@@ -306,11 +320,10 @@ public class MainMenuActivity extends BaseActivity {
         }
 
         final float density = getResources().getDisplayMetrics().density;
+        final float maxSwipe = density * 145f;
+        final long animDuration = 160L;
 
-        final float maxSwipe      = density * 145f;
-        final long  animDuration  = 160L;
-
-        final float openThresholdPart  = 0.05f;
+        final float openThresholdPart = 0.05f;
         final float closeThresholdPart = 0.85f;
 
         final float[] downX = new float[1];
@@ -318,8 +331,27 @@ public class MainMenuActivity extends BaseActivity {
         final float[] startTranslationX = new float[1];
         final boolean[] isSwipingHorizontally = new boolean[1];
         final boolean[] isDecided = new boolean[1];
+
         final float touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
-        final boolean[] isDragging = new boolean[1];
+
+        // ======= Фикс высоты deleteBackground =======
+        // deleteBackground в XML имеет height=0dp -> задаём высоту равную cardContent
+        final Runnable syncDeleteHeight = () -> {
+            int h = cardContent.getHeight();
+            if (h <= 0) return;
+            ViewGroup.LayoutParams lp = deleteBackground.getLayoutParams();
+            if (lp.height != h) {
+                lp.height = h;
+                deleteBackground.setLayoutParams(lp);
+            }
+        };
+
+        // на старте и при любых изменениях layout
+        itemView.post(syncDeleteHeight);
+        cardContent.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, orr, ob) -> syncDeleteHeight.run());
+
+        // фон по умолчанию скрыт через alpha (без GONE/INVISIBLE)
+        deleteBackground.setAlpha(0f);
 
         cardContent.setOnTouchListener((v, event) -> {
 
@@ -333,7 +365,6 @@ public class MainMenuActivity extends BaseActivity {
                     isSwipingHorizontally[0] = false;
                     isDecided[0] = false;
 
-                    // НЕ запрещаем перехват сразу — иначе вертикальный скролл не начнётся
                     v.getParent().requestDisallowInterceptTouchEvent(false);
                     return true;
                 }
@@ -342,32 +373,27 @@ public class MainMenuActivity extends BaseActivity {
                     float dx = event.getX() - downX[0];
                     float dy = event.getY() - downY[0];
 
-                    // ещё не решили, что это за жест
                     if (!isDecided[0]) {
                         if (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop) {
                             isDecided[0] = true;
 
-                            // если горизонталь сильнее — это свайп карточки
                             if (Math.abs(dx) > Math.abs(dy)) {
                                 isSwipingHorizontally[0] = true;
-                                v.getParent().requestDisallowInterceptTouchEvent(true); // забираем жест себе
+                                v.getParent().requestDisallowInterceptTouchEvent(true);
                             } else {
-                                // вертикаль — отдаём NestedScrollView
                                 isSwipingHorizontally[0] = false;
                                 v.getParent().requestDisallowInterceptTouchEvent(false);
-                                return false; // важно: чтобы скролл пошёл
+                                return false;
                             }
                         } else {
                             return true;
                         }
                     }
 
-                    // если решили, что это вертикальный жест — не мешаем скроллу
                     if (!isSwipingHorizontally[0]) {
                         return false;
                     }
 
-                    // ---- дальше твоя текущая логика горизонтального свайпа ----
                     float newTranslation = startTranslationX[0] + dx;
 
                     if (newTranslation > 0) newTranslation = 0;
@@ -375,10 +401,12 @@ public class MainMenuActivity extends BaseActivity {
 
                     cardContent.setTranslationX(newTranslation);
 
+                    // показываем/прячем фон ТОЛЬКО через alpha (не трогаем visibility)
                     if (newTranslation < 0) {
-                        deleteBackground.setVisibility(View.VISIBLE);
+                        syncDeleteHeight.run();
+                        if (deleteBackground.getAlpha() < 1f) deleteBackground.setAlpha(1f);
                     } else {
-                        deleteBackground.setVisibility(View.GONE);
+                        if (deleteBackground.getAlpha() > 0f) deleteBackground.setAlpha(0f);
                     }
 
                     return true;
@@ -387,13 +415,38 @@ public class MainMenuActivity extends BaseActivity {
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL: {
 
-                    // если жест был вертикальным — мы его не обрабатываем
+                    float dxTap = event.getX() - downX[0];
+                    float dyTap = event.getY() - downY[0];
+
+                    // ТАП по карточке
+                    if (!isDecided[0] && Math.abs(dxTap) < touchSlop && Math.abs(dyTap) < touchSlop) {
+
+                        // если открыто — закрываем
+                        if (Math.abs(cardContent.getTranslationX()) > 1f) {
+                            cardContent.animate()
+                                    .translationX(0f)
+                                    .setDuration(animDuration)
+                                    .withEndAction(() -> deleteBackground.setAlpha(0f))
+                                    .start();
+                        }
+
+                        v.performClick();
+
+                        Intent intent = new Intent(MainMenuActivity.this, BankCardsActivity.class);
+                        intent.putExtra("bank_name", bankName);
+                        startActivity(intent);
+
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        return true;
+                    }
+
+                    // вертикальный жест — отдаём скроллу
                     if (!isSwipingHorizontally[0]) {
                         v.getParent().requestDisallowInterceptTouchEvent(false);
                         return false;
                     }
 
-                    // ---- дальше оставляешь твою текущую логику "открыть/закрыть" ----
+                    // открыть/закрыть
                     float current = cardContent.getTranslationX();
                     float openedPart = Math.abs(current) / maxSwipe;
 
@@ -402,12 +455,13 @@ public class MainMenuActivity extends BaseActivity {
                     if (startedClosed) {
                         if (openedPart < openThresholdPart) {
                             cardContent.animate()
-                                    .translationX(0)
+                                    .translationX(0f)
                                     .setDuration(animDuration)
-                                    .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
+                                    .withEndAction(() -> deleteBackground.setAlpha(0f))
                                     .start();
                         } else {
-                            deleteBackground.setVisibility(View.VISIBLE);
+                            syncDeleteHeight.run();
+                            deleteBackground.setAlpha(1f);
                             cardContent.animate()
                                     .translationX(-maxSwipe)
                                     .setDuration(animDuration)
@@ -416,12 +470,13 @@ public class MainMenuActivity extends BaseActivity {
                     } else {
                         if (openedPart < closeThresholdPart) {
                             cardContent.animate()
-                                    .translationX(0)
+                                    .translationX(0f)
                                     .setDuration(animDuration)
-                                    .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
+                                    .withEndAction(() -> deleteBackground.setAlpha(0f))
                                     .start();
                         } else {
-                            deleteBackground.setVisibility(View.VISIBLE);
+                            syncDeleteHeight.run();
+                            deleteBackground.setAlpha(1f);
                             cardContent.animate()
                                     .translationX(-maxSwipe)
                                     .setDuration(animDuration)
@@ -437,110 +492,12 @@ public class MainMenuActivity extends BaseActivity {
             return false;
         });
 
-        // свайп и тап по красной зоне "Удалить банк"
-        final float[] delDownX = new float[1];
-        final float[] delDownY = new float[1];
-        final float[] delStartTranslationX = new float[1];
-        final boolean[] delIsDragging = new boolean[1];
-
-        // ✅ надёжное удаление по обычному клику (fallback, если onTouch не распознаёт тап)
+        // Клик по красной зоне -> удалить
         deleteBackground.setOnClickListener(v ->
                 confirmDeleteBank(bankName, itemView, cardContent, deleteBackground)
         );
 
-        deleteBackground.setOnTouchListener((v, event) -> {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    delDownX[0] = event.getX();
-                    delDownY[0] = event.getY();
-                    delStartTranslationX[0] = cardContent.getTranslationX();
-                    delIsDragging[0] = false;
-                    v.getParent().requestDisallowInterceptTouchEvent(true);
-                    return true;
-
-                case MotionEvent.ACTION_MOVE: {
-                    float dx = event.getX() - delDownX[0];
-                    float dy = event.getY() - delDownY[0];
-
-                    if (!delIsDragging[0]) {
-                        if (Math.abs(dx) > touchSlop && Math.abs(dx) > Math.abs(dy)) {
-                            delIsDragging[0] = true;
-                        } else {
-                            return true;
-                        }
-                    }
-
-                    float newTranslation = delStartTranslationX[0] + dx;
-
-                    if (newTranslation > 0) newTranslation = 0;
-                    if (newTranslation < -maxSwipe) newTranslation = -maxSwipe;
-
-                    cardContent.setTranslationX(newTranslation);
-
-                    if (newTranslation < 0) {
-                        deleteBackground.setVisibility(View.VISIBLE);
-                    } else {
-                        deleteBackground.setVisibility(View.GONE);
-                    }
-
-                    return true;
-                }
-
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL: {
-                    v.getParent().requestDisallowInterceptTouchEvent(false);
-
-                    float dx = event.getX() - delDownX[0];
-                    float dy = event.getY() - delDownY[0];
-
-                    if (!delIsDragging[0] &&
-                            Math.abs(dx) < touchSlop &&
-                            Math.abs(dy) < touchSlop) {
-
-                        new AlertDialog.Builder(this)
-                                .setTitle("Удалить банк?")
-                                .setMessage("Будут удалены все карты и категории кэшбэка, связанные с «" + bankName + "».")
-                                .setPositiveButton("Удалить", (dialog, which) -> {
-                                    deepDeleteBankData(bankName);
-                                    banksContainer.removeView(itemView);
-                                    Toast.makeText(this, "Банк удалён", Toast.LENGTH_SHORT).show();
-                                })
-                                .setNegativeButton("Отмена", (dialog, which) -> {
-                                    cardContent.animate()
-                                            .translationX(0)
-                                            .setDuration(animDuration)
-                                            .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
-                                            .start();
-                                })
-                                .show();
-
-                        return true;
-                    }
-
-                    float current = cardContent.getTranslationX();
-                    float openedPart = Math.abs(current) / maxSwipe;
-
-                    if (openedPart < closeThresholdPart) {
-                        cardContent.animate()
-                                .translationX(0)
-                                .setDuration(animDuration)
-                                .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
-                                .start();
-                    } else {
-                        deleteBackground.setVisibility(View.VISIBLE);
-                        cardContent.animate()
-                                .translationX(-maxSwipe)
-                                .setDuration(animDuration)
-                                .start();
-                    }
-
-                    return true;
-                }
-            }
-
-            return false;
-        });
-
+        // Если хочешь — можно оставить жесты на deleteBackground, но безопаснее просто клик.
         banksContainer.addView(itemView);
     }
 
@@ -565,7 +522,7 @@ public class MainMenuActivity extends BaseActivity {
                         cardContent.animate()
                                 .translationX(0)
                                 .setDuration(160)
-                                .withEndAction(() -> deleteBackground.setVisibility(View.GONE))
+                                .withEndAction(() -> deleteBackground.setVisibility(View.INVISIBLE))
                                 .start();
                     }
                 })
