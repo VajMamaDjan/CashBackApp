@@ -40,7 +40,10 @@ public class CashbackCategoryAdapter extends RecyclerView.Adapter<CashbackCatego
         h.tvName.setText(c.name);
 
         // ✅ единый источник правды: values/cashback_categories.xml
-        int iconRes = CashbackCategoryIconResolver.resolve(h.itemView.getContext(), c.name);
+        int iconRes = CashbackCategoryIconResolver.getIcon(
+                h.itemView.getContext(),
+                c.name
+        );
         h.ivIcon.setImageResource(iconRes);
 
         h.itemView.setOnClickListener(v -> listener.onClick(c));

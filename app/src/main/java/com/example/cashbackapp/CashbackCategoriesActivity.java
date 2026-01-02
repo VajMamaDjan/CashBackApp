@@ -483,7 +483,7 @@ public class CashbackCategoriesActivity extends BaseActivity {
         tvPercent.setText(percent + "%");
 
         // ✅ иконка категории — из единого источника
-        int iconRes = CashbackCategoryIconResolver.resolve(this, name);
+        int iconRes = CashbackCategoryIconResolver.getIcon(this, name);
         ivIcon.setImageResource(iconRes);
 
         tvName.setText(name);

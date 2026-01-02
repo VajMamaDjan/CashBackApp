@@ -72,10 +72,4 @@
         <item>Оплата ЖКУ в ВТБ-Онлайн</item>
         <item>Оплата сотовой связи</item>
     </string-array>
-    <array name="cashback_category_icons">
-        <!-- ВАЖНО: количество и порядок 1-в-1 как в cashback_categories
-        <item>@drawable/ic_cat_auto_parts</item>   -->    <!-- Автозапчасти -->
-        <!-- Если для категории пока нет иконки — ставь плейсхолдер -->
-        <item>@drawable/ic_cat_placeholder</item>
-    </array>
 </resources>
